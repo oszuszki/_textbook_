@@ -1,0 +1,234 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Gutenberg!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+        <cover>
+            <para>
+                Programozás tankönyvek rövid olvasónaplói.
+            </para>
+        </cover>
+    </info>
+    <section>
+        <title>Programozási alapfogalmak</title>
+        <para>         
+            PICI     
+        </para>
+
+        <para>         
+            Programozásra kialakult nyelveknek szintjei: gépi-, assembly szintű-, 
+            és magas szintű nyelv.
+            Egy magas szintű programozási nyelv a szintaktikai, és a szemantikai 
+            szabályok együttese határoz meg.
+            Ahoz hogy egy programot a gép értelmezni tudjon át kell alakítani gépi nyelvé, 
+            erre két módot ismerünk meg: fordítóprogramos és interpreteres.
+            Fordítóprogramos (- tetszőleges nyelvről tetszőleges nyelvre) módszer esetén ezek a lépések történnek meg: 
+            lexikális elemzés -> szintaktikai elemzés -> szemantikai elemzés -> 
+            kódgenerálás.
+            interpreteres teknika esetén meg van az első három lépé (lexikális 
+            elemzés -> szintaktikai elemzés -> szemantikai elemzés), de nem készít tárgyprogramot.
+            Hivatkozási nyelv - az adott programozási nyelv szabályrendszere.
+            IDE - Integrated Development Enviroment -> programok írásához grafikus 
+            integrált fejlesztıi környezetek, ezek magukba foglalják a szövegszerkesztőt 
+            fordítót, kapcsolatszerkeszztőt, betöltőt, futtatórendszert és betöltőt.
+            Programozási nyelveket fel lehet bontani két csoportra (ezek mellett 
+            alcsoportokra): Imperatív- és Dekleratív nyelvek.
+            
+        </para>
+        <para>
+            Imperatív nyelvek -> algoritmikus nyelv, processzort működtetik. 
+            (alcsoportok: eljárásorientált-, objektumorientált nyelvek )
+        </para>
+        <para>
+            Deklaratív nylevek -> nem algoritmikus nyelv, a programozó 
+            konkrétan csak a problémát adja meg.
+        </para>
+        <para>
+            Máselvű nylevek -> ide olyan nyelvek tartoznak, amelyek egyéb más helyre 
+            nem sorolhatóak be, egységes jellemzőjük, nincs.
+        </para>
+        <para>
+            Az adattipus, komponensként megjelenő programozási eszköz, amit a 
+            művelet, a tartomány (típusa) és a reprezentáció (tárban való megelenése) 
+            határoz meg. A beépített típusok megtalálhatóak minden nyelvben, de emelett 
+            mi magunk is definiálhatunk sajátot. 
+            Két nagyobb csoportja van: egyszerű, és az ősszetett. ||(skalár és strukturált)
+             
+        </para>
+        <para>
+            A tömb lehet egy vagy több dimenziós, elemeire, az indexeik segítségével 
+            hivatkozunk, elemeinek típusai minden képpen ugyan olyanok, ezzel szemben a 
+            rekord elemei lehetnek különböző típusuak. A rekordoknál minden mezőnek 
+            van neve, és típusa. (Pascal, C -> a rekordoknak nincsenek almezői, 
+            egyszerű, de a mezők típusa lazán lehet összetett!)
+            Egyes mezőkre "eszköznév.mezőnév" alakban hivatkozunk, az eszköznévre 
+            azért van szükség, mert a mező neve nem minden esetben egyedi.     
+            A mutató tárcímeket ad vissza, ez egy egyszerű típus, minden mutató 
+            egy címre mutat, kivéve a NULL speciális elem, ez nem mutat sehová.     
+        </para>
+        <para>
+            Nevesített konstans három komponense: név, típus, érték.
+            A nevesített konstans mindig dekralálni kell.
+            Beszélő név szerepének köszönhetően nagyon rugalmas, és egyszerű a használata,
+            könyen tudunk rá utalni, és ha meg akarjuk változtatni, elég csak egy helyen 
+            elvégezni a változtatásokat. 
+        </para>
+        <para>
+            Változó négy komponense: név, cím, attributum, érték. 
+            Név -> ezzel azonosítjuk a programban.
+            Attributum -> futtás közbeni viselkedését határozza meg a változónak, 
+            (három féle képpen lehet dekralálni: explicit, implicit, automatikus)
+            A változóhoz cím rendelhető -> statikus tárkiosztás: futás előtt már meg van a 
+            változó címe, ami futtás alatt nem változik; dinamikus tárkiosztás: 
+            futtató rendszer végzi a cím hozzárendelését, a futás alatt változhat.
+        </para>
+        <para>
+            A kifejezés szintaktikai eszköz, két komponens: érték, típus. 
+            Megnéztük a felépítését. Unáris, ternális, bináris operátor, függően az operandusok számától.
+            Prefix, infix, postfix - operátorok, és operandusok sorrendjétől függ.
+            Bemutatja a kifejezés kiértékelését.
+            A C kifejezéseit, precedenciatáblázatát, operátorait példák álltal mutatja be a könyv.           
+        </para> 
+        <para>
+            Negyedik fejezet bemutatja az utasítások feladatát, két nagy csoportját 
+            (deklarációs, végrehajtható).
+            Majd be mutatta csoportosításait hét alfejezeten keresztül
+            (értékadó utasítás, üres utasítás, ugró utasítás, elágaztató utasítások, 
+            ciklusszervező utasítások, hívó utasítás, vezérlésátadó utasítások, 
+            I/O utasítások, egyéb utasítások ) ahol kitér minden esetre, 
+            szemléltetve azokat példákkal.
+        </para>  
+        <para>
+            Az eljárás orientált nyelvekben a program szövege független szuverén 
+            részekre tagolható. Három esetet vázol a könyv: ahol a program önálló 
+            részekbél áll, ezek külön kúlön forrdíthatóak; van olyan is ahol a programot 
+            egy nagy egységként kell lefordítani, a programok fizikailag, nem függetlenek; 
+            és van ennek a kettőnek a keveréke, ahol fizikailag független, de tetszőleges 
+            belső struktúrával rendelkező programegységek léteznek.
+        </para>
+        <para>
+            Eljárás orientált nyelvek programegységei: alprogram, blokk, csomag, taszk.
+            Az alprogram egy olyan eszköz ahol a bemeneti adatcsoport leképződik a 
+            kimeneti adatcsoportra, de csak a specifikációt ismerjük.
+            Az alprogram egy nagyon rugalmasan felhasználható eszköz, elég csak a programban hivatkozni rá.
+            Alprogramfajták: függvény, eljárás.
+            Hívási lánc -> egy program egység meg hív egy másikat;
+            Rekurzió -> egy programegység megívja ömagát.
+        </para>  
+        <para>
+            Az i/o egymástól eltérő területe a programozási nyeleknek,
+            operációs rendszer-, platform-,  implementációfüggőek. Középpontban 
+            az állomány áll, lehet logikai (programozási eszköz, atributumként jelenik meg),
+            fizikai (oprendszer szintű).
+            Az álomány lehet inpu-, output-, input-output- állomány.
+            I/O folyamatok alatt adatátvitel történik a tár és a perifériák között 
+            (folyamatos, rekord módú).
+            
+        </para>
+        <para>
+            Ahoz hogy egy programban állományokkal dolgozzunk, a következőket kell 
+            végrehajtani: deklaráció, összerendelés, állomány megnyítása, feldolgozás, lezár.
+        </para>
+        
+    </section>        
+    <section>
+        <title>Programozás bevezetés</title>
+        <para>                
+            <citation>KERNIGHANRITCHIE</citation>
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/zmfT9miB-jY">https://youtu.be/zmfT9miB-jY</link>
+        </para>        
+        
+        <para>
+            Első fejezet, egy egyszerű C program:
+        </para>
+        <programlisting language="c"><![CDATA[
+                #include <stdio.h>
+                
+                main()
+                {
+                printf("Figyelem, emberek!\n");
+                }
+               ]]></programlisting>
+               
+        <para>
+            Kiírja a "Figyelem, emberek!" szöveget ez a program. A fejezet meg tanítja hogyan kell futtatn, fordítani, és láthatjuk is a végereedményt.
+        </para>      
+        <para>    
+            Ezután alapvető dolgokat vettünk át: kommentelés, változók 
+            használata, while, for, if használatát, változók típusait, 
+            függvénykönyvtárak beágyazása, tömbök, stb...
+        </para>     
+                     
+        <para>
+            Második fejezetben változóneveket veszünk át (char, int, dpuble, float);
+            aritmetikai-, relációs- és logikai operátorok (+, -, %, -, /, =, ==, !=);                    
+        </para>
+        <para>
+            Harmadik fejezetben az utasításokat vizsgáljuk (if, if-else, case, switch), 
+            helyes használatukat, szituációs példák stb, majd do-while utasításokat.
+            Ezekután a break, continue utasításokat nézzük meg.
+        </para>    
+                             
+        <para>
+            Negyedik fejezet: fügvényeket rágjuk át, jó alaposan.
+            Header álományok vizsgálata.
+            Speciális változótípusok;
+            Blokkstruktura, inicializálás és a rekurzió megismerése.
+                         
+        </para>              
+        <para>
+            Ötödik fejezetben a tömbök, mutatók, függvényargumentumokról, illetve 
+            többdimenziós tömbökkel való ismerkedés.
+        </para>
+                                               
+        <para>
+            Hatodik fejezet strukturák alapfogalmai.
+            Aztán struktúrák és függvények kapcsolata, struktúra tömbök.
+            Ezután "typedef" utasítást vizsgáljuk.
+        </para>
+        <para> 
+            Hetedik fejezetben a főszerepet az adatbevitel, és az adatkivitel játsza,
+            hogyan férhetünk hozzá más állományokhoz stb.
+            Aztán a hibakezelésbe vetjük bele magunkat.
+        </para>
+        <para>
+            A nyolcadik, és egyben utolsó fejezetünkben az UNIX alapú operációs rendszerek a téma;
+            renszerhívások, függvények, kiiratások megismerése, ebben a környezetben.
+        </para>
+        
+    </section>        
+    <section>
+        <title>Programozás</title>
+        <para>                
+            <citation>BMECPP</citation>
+        </para>
+        
+        <para>
+            A C++ a C nyelvből fejlesztett általános célú programozási nyelv, 
+            amelyben tudunk generikusan, és objektum orientáltan programozni.
+        </para>
+        <para>
+            A második fejezet bemutatja az olvasónak a C és a C++ közötti külömbségeket, 
+            a C++ újításait.
+        </para>
+        <para>
+            Mint például a függvényparaméterek és visszatérési érték, a main 
+            függvény, bool típus (ami a C++ nyelvben került bevezetésre), 
+            függvénynevek túlterhelése majd a paraméterátadás részletezi referenciatípussal.
+        </para>
+        <para>
+            A harmadik fejezetben a könyv részletezi az objektumorientáltság 
+            alapelveit, kitér a láthatóságra, konstruktorokra és destruktorokra, 
+            osztályokra, dinamikus memóriakezelésre, másolókontruktorokra, emelett 
+            friend függvények és osztálokkal if foglalkozik.
+        </para>
+        <para>
+            A hatodik fejezet az operátorokat általánosságban, és azok túlterhelését magyarázza.      
+            A tízedik részleteigmenően veszi a kivételkezelést, bemutatja az egymásba ágyazott try-catch 
+            működését, és használatát.
+        </para>
+    </section>        
+</chapter>                

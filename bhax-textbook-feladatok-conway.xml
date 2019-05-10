@@ -1,0 +1,348 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Conway!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Hangyaszimulációk</title>
+        <para>
+            Írj Qt C++-ban egy hangyaszimulációs programot, a forrásaidról utólag reverse engineering jelleggel
+            készíts UML osztálydiagramot is!
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://bhaxor.blog.hu/2018/10/10/myrmecologist">https://bhaxor.blog.hu/2018/10/10/myrmecologist</link>
+        </para>
+        <para>
+            Myrmecologist program Qt C++ környezetben 
+            íródott.
+            <filename>ant.h</filename> header fájlban vannak a koordináták.
+            Ezek publikus elemek, ugyhogy nem csak a classon elül lestnek érvényesek.
+            Deklaráltuk az ants vektort is, ebben a hangyákat tároljuk.
+        </para>        
+        
+        <programlisting><![CDATA[
+$ more ant.h
+#ifndef ANT_H
+#define ANT_H
+
+class Ant
+{
+
+public:
+    int x;
+    int y;
+    int dir;
+
+    Ant(int x, int y): x(x), y(y) {
+        
+        dir = qrand() % 8;
+        
+    }
+
+};
+
+typedef std::vector<Ant> Ants;
+
+#endif]]>
+        </programlisting>
+
+        <para> 
+            A szimuláció ablakának paraméteres adatait a public részben határoztuk meg,
+            míg a hangyákat megjelenítő cellákét a privátban, a 
+            <filename>antwin.h</filename> header file AntWin osztályában.
+        </para>
+        <para>
+            <function>closeEvent</function> -> események kikapcsolását-,
+        </para> 
+        <para>
+            <function>keyPressEvent</function> -> beadott gomblenyomásokat kezeli
+        </para>
+                 
+        <programlisting><![CDATA[
+$ more antwin.h
+#ifndef ANTWIN_H
+#define ANTWIN_H
+
+#include <QMainWindow>
+#include <QPainter>
+#include <QString>
+#include <QCloseEvent>
+#include "antthread.h"
+#include "ant.h"
+
+class AntWin : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    AntWin(int width = 100, int height = 75,
+           int delay = 120, int numAnts = 100,
+           int pheromone = 10, int nbhPheromon = 3,
+           int evaporation = 2, int cellDef = 1,
+           int min = 2, int max = 50,
+           int cellAntMax = 4, QWidget *parent = 0);
+
+    AntThread* antThread;
+
+    void closeEvent ( QCloseEvent *event ) {
+
+        antThread->finish();
+        antThread->wait();
+        event->accept();
+    }
+
+    void keyPressEvent ( QKeyEvent *event )
+    {
+
+        if ( event->key() == Qt::Key_P ) {
+            antThread->pause();
+        } else if ( event->key() == Qt::Key_Q
+                    ||  event->key() == Qt::Key_Escape ) {
+            close();
+        }
+
+    }
+
+    virtual ~AntWin();
+    void paintEvent(QPaintEvent*);
+
+private:
+
+    int ***grids;
+    int **grid;
+    int gridIdx;
+    int cellWidth;
+    int cellHeight;
+    int width;
+    int height;
+    int max;
+    int min;
+    Ants* ants;
+
+public slots :
+    void step ( const int &);
+
+};
+
+#endif]]>
+        </programlisting>
+
+        <para>
+            Az <filename>antthread.h</filename> header file AntThread osztályában 
+            láthatjuk többek között a párolgás mértékét (evaporation) és a feromonok 
+            számát (nbrPheromone) tároló változókat.
+            Megfigyelhetjük még a hangyák cellán belüli maximális előfordulásának 
+            számát tároló változót is (cellAntMax).
+            Private függvények közé soroljuk pl. a <function>newDir</function>-t, 
+            amely új irányt határoz meg,
+            illetve a <function>moveAnts</function>-et, ami pedig a hangyák mozgatásáért felelős.
+            
+            AntThread osztályában találhatjuk meg a párolgás mértékét, és a feromonok 
+            számát (a hangyák magukután feromonnyomot hagynak, igazából ebben a fejezetbe ezt 
+            figyelhetjük meg, egy szimuláció álltal).
+        </para>
+        <para>
+            <function>newDir</function> -> új irányt határoz meg.
+        </para>
+        <para>
+            <function>moveAnts</function> -> hangyák mozgásáért felelős.
+        </para>
+        
+        <programlisting><![CDATA[
+$ more antthread.h
+#ifndef ANTTHREAD_H
+#define ANTTHREAD_H
+
+#include <QThread>
+#include "ant.h"
+
+class AntThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    AntThread(Ants * ants, int ***grids, int width, int height,
+             int delay, int numAnts, int pheromone, int nbrPheromone, 
+             int evaporation, int min, int max, int cellAntMax);
+    
+    ~AntThread();
+    
+    void run();
+    void finish()
+    {
+        running = false;
+    }
+
+    void pause()
+    {
+        paused = !paused;
+    }
+
+    bool isRunnung()
+    {
+        return running;
+    }
+
+private:
+    bool running {true};
+    bool paused {false};
+    Ants* ants;
+    int** numAntsinCells;
+    int min, max;
+    int cellAntMax;
+    int pheromone;
+    int evaporation;
+    int nbrPheromone;
+    int ***grids;
+    int width;
+    int height;
+    int gridIdx;
+    int delay;
+    
+    void timeDevel();
+
+    int newDir(int sor, int oszlop, int vsor, int voszlop);
+    void detDirs(int irany, int& ifrom, int& ito, int& jfrom, int& jto );
+    int moveAnts(int **grid, int row, int col, int& retrow, int& retcol, int);
+    double sumNbhs(int **grid, int row, int col, int);
+    void setPheromone(int **grid, int row, int col);
+
+signals:
+    void step ( const int &);
+
+};
+
+#endif]]>
+        </programlisting>
+        <para>
+            Fordítás, és futtatás:
+        </para>   
+        <programlisting><![CDATA[
+$ ls
+ant.h  antthread.cpp  antthread.h  antwin.cpp  antwin.h  main.cpp  myrmecologist.pro
+$ qmake myrmecologist.pro
+Info: creating stash file /home/orszaghlev/Asztal/hangya/.qmake.stash
+$ ls
+ant.h  antthread.cpp  antthread.h  antwin.cpp  antwin.h  main.cpp  Makefile  myrmecologist.pro
+$ make
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o main.o main.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o antwin.o antwin.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o antthread.o antthread.cpp
+g++ -pipe -O2 -Wall -W -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+/usr/lib/qt5/bin/moc -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/orszaghlev/Asztal/hangya -I/home/orszaghlev/Asztal/hangya -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include antwin.h -o moc_antwin.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o moc_antwin.o moc_antwin.cpp
+/usr/lib/qt5/bin/moc -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include ./moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/orszaghlev/Asztal/hangya -I/home/orszaghlev/Asztal/hangya -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include antthread.h -o moc_antthread.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o moc_antthread.o moc_antthread.cpp
+g++ -Wl,-O1 -o myrmecologist main.o antwin.o antthread.o moc_antwin.o moc_antthread.o   -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+$ ls
+ant.h          antthread.h  antwin.cpp  antwin.o  main.o    moc_antthread.cpp  moc_antwin.cpp  moc_predefs.h  myrmecologist.pro
+antthread.cpp  antthread.o  antwin.h    main.cpp  Makefile  moc_antthread.o    moc_antwin.o    myrmecologist
+$ ./myrmecologist -w 250 -m 150 -n 400 -t 10 -p 5 -f 80 -d 0 -a 255 -i 3 -s 3 -c 22]]>
+        </programlisting>
+
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_conway_/hangya/ant.png" format="PNG" scale="55"/>
+            </imageobject>
+        </mediaobject>
+                         
+                                                            
+                                                                                                                
+                                                                                
+    </section>        
+        
+    <section>
+        <title>Qt C++ életjáték</title>
+        <para>
+            Megoldás forrása:
+            <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/tree/master/_files_/_conway_">
+                https://github.com/Oszuszki/_owntextbookproject_/tree/master/_files_/_conway_
+            </link>
+        </para>
+        <para>
+            A Qt-t már ismerjük, a Mandelbrotos fejezetnek köszönhetően, 
+            nos, most a Jonh H. Conway féle életjátékot üzemeljük be vele.
+        </para>
+        <para>
+            <filename>./run</filename> paranccsal futtatjuk.           
+        </para>
+        
+        <para>
+            A John Conway-féle életjáték szabályai:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>Azok a sejtek melyeknek két vagy három szomszédja van, életben maradnak</para>
+            </listitem>
+            <listitem>
+                <para>Azok a sejtek melyeknek négy vagy öt szomszédja van, meghal</para>
+            </listitem>
+            <listitem>
+                <para>Ha egy sejtnek kevesebb mint kettő szomszédja van, meghal</para>
+            </listitem>
+            <listitem>
+                <para>Amenyiben egy üres cellát három élő sejt vesz körül, ott új selyt születik</para>
+            </listitem>
+        </itemizedlist>
+    </section>        
+    <section>
+        <title>BrainB Benchmark</title>
+        <para>
+        </para>
+        <para>
+            Megoldás videó: 
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://github.com/nbatfai/esport-talent-search">https://github.com/nbatfai/esport-talent-search</link>              
+        </para>
+        <para>
+            BrainB Benchmark szoftver, összeállít egy elméleti profilt, hogy az 
+            adott játékos hogyan teljesít abban a szituációbanamikor "elveszti" a 
+            karakterét egy egy intenzívebb pillanatban, pld vizuállis efektek ki 
+            takarják egymást, nagy a kavarodás stb stb.
+            A feladatun a szimuláció alatt, hogy az egér kurzort a 'Samu Entropy' karakteren  tartsuk, 
+            pontosabban a doboz közepébrn lévő körön.
+        </para>      
+        <para>
+            Próbáljuk is ki:
+        </para>
+        <screen><![CDATA[$ git clone https://github.com/nbatfai/esport-talent-search
+$ cd esport-talent-search
+$ sudo apt-get install opencv-data
+$ sudo apt-get install libopencv-dev
+$ mkdir build && cd build
+$ qmake ..
+$ make
+$ ./BrainB]]>
+        </screen>
+        <para>
+            Az én eredményem:
+        </para> 
+        <screen><![CDATA[ NEMESPOR BrainB Test 6.0.3
+time      : 6000
+bps       : 54690
+noc       : 44
+nop       : 0
+lost      : 
+43550 14420 1930 14290 2720 61970 31110 22890 16170 40150 45680 42910 64000 52790 62090 51480 60170 40990 63460 61850 
+mean      : 39731
+var       : 21055.9
+found     : 0 11140 25410 38550 34750 33080 33290 23580 29210 32190 46480 51880 23500 0 0 5240 0 16240 9580 6400 20330 16550 35330 27970 18090 35500 38050 8490 13080 31770 24990 18910 38310 43510 41040 36520 12190 12490 17000 18230 21350 31780 42780 46560 43120 44050 33510 28780 40510 54300 53470 54410 54630 44960 41400 45810 43950 64000 44240 
+mean      : 29872
+var       : 16086.5
+lost2found: 29210 0 0 6400 8490 24990 12190 42780 44050 54630 44960 45810 44240 
+mean      : 27519
+var       : 19846.2
+found2lost: 14420 14290 2720 61970 40150 45680 42910 52790 62090 51480 63460 61850 
+mean      : 42817
+var       : 21201.3
+mean(lost2found) < mean(found2lost)
+time      : 10:0
+U R about 4.29297 Kilobytes]]>
+        </screen>
+
+    </section>        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

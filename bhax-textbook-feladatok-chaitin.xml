@@ -1,0 +1,101 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Chaitin!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Iteratív és rekurzív faktoriális Lisp-ben</title>
+        
+        <para>
+            A LISP nylevcsalád a rekurziz függvények absztakt ábrázolására lett alkotva, az 1960-as években.
+        </para>
+        <para>
+            LISP érdekessége, hogy prefix alakban kéri be a kifejezéseket, azaz (2 + 2) -t,
+            (+ 2 2) módon.
+        </para>   
+        <para>
+            A LISP használatához először is le kell telepítenünk a Lisp futtató programot, a 
+            <filename>clisp</filename>-t.
+            Amit így futtatunk: <computeroutput>clisp fájlnév.lisp</computeroutput> 
+        </para>
+        <para>
+            iteralt -> az algoritmus annyiszor hajtódik végre, amennyi a megadott szám (4)
+        </para>
+        <programlisting><![CDATA[
+            (defun factorial (N)
+       (let ((R 1))
+            (do ((i 1 (+ i 1) )) ((> i N) R)
+                (setf r (* r i))
+            )
+       )
+)
+
+(print (factorial 4))
+)]]>
+
+        </programlisting>
+        
+        <para>
+            rekurziv -> addig hívja meg önmagát, míg a beadott számból ki nem jön az 1 (4 -> 1)
+        </para>
+        <programlisting><![CDATA[
+  (defun factorial (N)
+       (if (= N 1)
+           1
+           (* N (factorial (- N 1)))
+       )
+)
+
+(print (factorial 4))
+)]]>
+        </programlisting>
+        
+        <screen>
+<![CDATA[
+$ clisp iter.lisp
+24
+$ clisp rekurz.lisp
+24
+]]>
+        </screen>
+        <para>
+            Mindkettő esetében az eredmény okés!
+        </para>
+    </section>        
+        
+    <section>
+        <title>Weizenbaum Eliza programja</title>
+        <para>
+            Éleszd fel Weizenbaum Eliza programját!
+        </para>
+        <para>   
+            1966, Joseph Weizenbaum megalkotta a chatboot elődjét, 
+            jóval egyszerübben működött mint az említett chatoot, tartalmazott rengeteg 
+            kifejezést, ezekre mintaválaszokat, és ezek az adatok által próbált 
+            komunikálni a felhasználóval a program
+        </para>
+        <para>
+           Szedjük le aprogramot:
+        
+        <link xlink:href="http://norvig.com/paip/README.html">
+            http://norvig.com/paip/README.html
+        </link>
+        
+        
+            Indítsuk onnan ahová ki csomagoltuk.
+        </para>
+        <programlisting language="Lisp">
+<![CDATA[$ clisp
+> (load "auxfns.lisp")
+> (load "eliza.lisp")
+> (eliza)
+ELIZA>
+]]>
+        </programlisting>
+    </section>        
+
+           
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+</chapter>                

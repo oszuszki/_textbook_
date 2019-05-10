@@ -1,0 +1,342 @@
+ <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Mandelbrot!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>A Mandelbrot halmaz</title>
+        <programlisting language="c++">
+<![CDATA[
+#include <png++/png.hpp>
+
+#define N 500
+#define M 500
+#define MAXX 0.7
+#define MINX -2.0
+#define MAXY 1.35
+#define MINY -1.35
+
+void GeneratePNG( int tomb[N][M])
+{
+    png::image< png::rgb_pixel > image(N, M);
+    for (int x = 0; x < N; x++)
+    {
+        for (int y = 0; y < M; y++)
+        {
+            image[x][y] = png::rgb_pixel(tomb[x][y], tomb[x][y], tomb[x][y]);
+        }
+    }
+    image.write("kimenet.png");
+}
+
+struct Komplex
+{
+    double re, im;
+};
+
+int main()
+{
+    int tomb[N][M];
+
+    int i, j, k;
+
+    double dx = (MAXX - MINX) / N;
+    double dy = (MAXY - MINY) / M;
+
+    struct Komplex C, Z, Zuj;
+
+    int iteracio;
+
+    for (i = 0; i < M; i++)
+    {
+        for (j = 0; j < N; j++)
+        {
+            C.re = MINX + j * dx;
+            C.im = MAXY - i * dy;
+
+            Z.re = 0;
+            Z.im = 0;
+            iteracio = 0;
+
+            while(Z.re * Z.re + Z.im * Z.im < 4 && iteracio++ < 255)
+            {
+                Zuj.re = Z.re * Z.re - Z.im * Z.im + C.re;
+                Zuj.im = 2 * Z.re * Z.im + C.im;
+                Z.re = Zuj.re;
+                Z.im = Zuj.im;
+            }
+
+            tomb[i][j] = 256 - iteracio;
+        }
+    }
+
+    GeneratePNG(tomb);
+
+    return 0;
+}
+]]>
+        </programlisting>
+        <para>
+            A Mandelbrot halmaz illeszkedik a 
+            <inlineequation>
+                <alt role="tex">f_c(z) = z^2 + c</alt>
+                <mathphrase/>
+            </inlineequation>
+            függvény képére, s nullától iterálva nem divergál azaz korlátos 
+            <inlineequation>
+                <alt role="tex">f_c(0), f_c(f_c(0)), ...</alt>
+                <mathphrase/>
+            </inlineequation>
+            abszolútértékben.
+        </para>
+     
+        <programlisting>
+<![CDATA[all: mandelbrot clean
+
+mandelbrot.o: mandelbrot.cpp
+	@g++ -c mandelbrot.cpp `libpng-config --cflags`
+
+mandelbrot: mandelbrot.o
+	@g++ -o mandelbrot mandelbrot.o `libpng-config --ldflags`
+
+clean:
+	@rm -rf *.o
+	@./mandelbrot
+	@rm -rf mandelbrot ]]>
+        </programlisting>
+        <figure>
+            <title>A Mandelbrot halmaz a komplex síkon</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_mandelbrot_/mandelbrot/kimenet.png" width="50%"/>
+                </imageobject>
+                <textobject>
+                    <phrase>A Mandelbrot halmaz</phrase>
+                </textobject>
+            </mediaobject>
+        </figure>
+       
+    </section>        
+        
+    <section>
+        <title>A Mandelbrot halmaz a <filename>std::complex</filename> osztállyal</title>
+       
+        <programlisting language="c++">
+<![CDATA[
+#include <png++/png.hpp>
+#include <complex>
+
+const int N = 500;
+const int M = 500;
+const double MAXX = 0.7;
+const double MINX = -2.0;
+const double MAXY = 1.35;
+const double MINY = -1.35;
+
+void GeneratePNG(const int tomb[N][M])
+{
+    png::image< png::rgb_pixel > image(N, M);
+    for (int x = 0; x < N; x++)
+    {
+        for (int y = 0; y < M; y++)
+        {
+            image[x][y] = png::rgb_pixel(tomb[x][y], tomb[x][y], tomb[x][y]);
+        }
+    }
+    image.write("kimenet.png");
+}
+
+int main()
+{
+    int tomb[N][M];
+
+    double dx = ((MAXX - MINX) / N);
+    double dy = ((MAXY - MINY) / M);
+
+    std::complex<double> C, Z, Zuj;
+
+    int iteracio;
+
+    for (int i = 0; i < M; i++)
+    {
+        for (int j = 0; j < N; j++)
+        {
+			C = {MINX + j * dx , MAXY - i * dy};
+
+            Z = 0;
+            iteracio = 0;
+
+            while(abs(Z) < 2 && iteracio++ < 255)
+            {
+                Zuj = Z*Z+C;
+                Z = Zuj;
+            }
+
+            tomb[i][j] = 256 - iteracio;
+        }
+    }
+
+    GeneratePNG(tomb);
+
+    return 0;
+}
+]]>
+        </programlisting>
+        <para>
+            Ugyan az mint az előző, csak itt <code>std::complex</code> osztályt 
+            használjuk, így nem kell saját struktúrát írni a komplex számok tárolására.
+        </para>
+        <para>
+            A <code>std::complex</code> köszönhetően sokkal kényelmesebb a változók definiálása
+            Például: <code>C = {MINX + j * dx, </code> -> szám valós része, <code>MAXY - i * dy};</code> -> a szám imaginárius része.
+            
+        </para>
+    </section>        
+                
+    <section>
+        <title>Biomorfok</title>
+        
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/IJMbgRzY76E">https://youtu.be/IJMbgRzY76E</link>
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/nbatfai/bhax/tree/master/attention_raising/Biomorf">https://gitlab.com/nbatfai/bhax/tree/master/attention_raising/Biomorf</link>
+        </para>
+        
+        <para>
+            Ahogyan a Mandelbrot halmaznál, itt is egy komplex számsíkon ábrázolható 
+            függvényt nézünk meg.
+        </para>    
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_mandelbrot_/biomorf/biomorf.png" width="70%"/>
+            </imageobject>
+        </mediaobject>
+        
+
+        <para>
+            Itt is Makefile-t használióunk, így a
+            <code>make</code> parancs kiadásával lefuttatható a programunk.
+        </para>
+        <programlisting language="c++">
+<![CDATA[
+        all: biomorf clean
+
+biomorf.o: biomorf.cc
+	@g++ -c biomorf.cc `libpng-config --cflags` -O3
+
+biomorf: biomorf.o
+	@g++ -o biomorf biomorf.o `libpng-config --ldflags` -O3
+
+clean:
+	@rm -rf *.o
+	@./biomorf bmorf.png 800 800 10 -2 2 -2 2 .285 0 10
+	@rm -rf biomorf                                                                                                    
+             ]]>
+        </programlisting>                                                                                                                                                                                                                                                                                                     
+    </section>                     
+
+    <section>
+        <title>A Mandelbrot halmaz CUDA megvalósítása</title>
+        <para>
+            A feladat megvalósításához a Qt Creator nevű szoftvert fogjuk használni, mely egy több platformon
+            átívelő keretrendszer elsősorban grafikus alkalmazások készítésére. A Qt nagyon népszerű választás
+            a nagyobb projektek körében is, például a Qt az alapja a VLC-nek, és még sok más <emphasis role="strong">szabad szoftvernek</emphasis>.
+        </para>
+        <para>
+            Ebben a programban alapul vesszük a már meglévő Mandelbrot-halmaz számító C++ programunkat, és egy
+            más kontextusba ültetjük be. Természetesen ez még nem lenne elég, hanem el kell készítenünk
+            hozzá Qt Creatorban a felületet, valamint némi extra kódot. Ez a kód a repóban megtalálható.
+        </para>
+        <para>
+            A program hasznáalta során az egérrel jelölünk ki egy adott területet, melyet az
+            újra renderel és betölt. A programról használat közben beillesztek néhány képernyőképet.
+        </para>
+    </section>                     
+
+    <section>
+        <title>Mandelbrot nagyító és utazó C++ nyelven</title>
+        <para>
+            Építs GUI-t a Mandelbrot algoritmusra, lehessen egérrel nagyítani egy területet, illetve egy pontot
+            egérrel kiválasztva vizualizálja onnan a komplex iteréció bejárta z<subscript>n</subscript> komplex számokat!
+        </para>
+            
+        <para> 
+            Mandelbot halmazt készítünk, csak itt bele tudunk nagyítani oda ahová szeretnénk.
+        </para>
+        <para>
+            Telepítsük le a <filename>libqt</filename> könytárat, majd 
+            <code>qmake -project</code> parancsot írjuk be a terminálba, amely  a 
+            mappa nevéhez alkalmaszkodva létre hoz egy .pro fájlt, ezek után elkészítjük a Makefilet.
+        </para>
+        <programlisting><![CDATA[$ sudo apt-get install libqt5-dev 
+$ ls
+frakablak.cpp  frakablak.h  frakszal.cpp  frakszal.h  main.cpp
+$ qmake -project
+$ ls
+frakablak.cpp  frakablak.h  frakszal.cpp  frakszal.h  main.cpp  nagyito_c++.pro
+$ qmake nagyito_c++.pro
+$ ls
+frakablak.cpp  frakszal.cpp  main.cpp  nagyito_c++.pro
+frakablak.h    frakszal.h    Makefile
+$ make
+g++ -c -m64 -pipe -O2 -Wall -W -D_REENTRANT -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. -o frakablak.o frakablak.cpp
+g++ -c -m64 -pipe -O2 -Wall -W -D_REENTRANT -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. -o frakszal.o frakszal.cpp
+g++ -c -m64 -pipe -O2 -Wall -W -D_REENTRANT -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. -o main.o main.cpp
+/usr/lib/x86_64-linux-gnu/qt4/bin/moc -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. frakablak.h -o moc_frakablak.cpp
+g++ -c -m64 -pipe -O2 -Wall -W -D_REENTRANT -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. -o moc_frakablak.o moc_frakablak.cpp
+/usr/lib/x86_64-linux-gnu/qt4/bin/moc -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. frakszal.h -o moc_frakszal.cpp
+g++ -c -m64 -pipe -O2 -Wall -W -D_REENTRANT -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/share/qt4/mkspecs/linux-g++-64 -I. -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtGui -I/usr/include/qt4 -I. -I. -o moc_frakszal.o moc_frakszal.cpp
+g++ -m64 -Wl,-O1 -o nagyito_c++ frakablak.o frakszal.o main.o moc_frakablak.o moc_frakszal.o    -L/usr/lib/x86_64-linux-gnu -lQtGui -lQtCore -lpthread 
+$ ./nagyito_c++]]>
+        </programlisting>
+
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_mandelbrot_/nagyito_c++/nagyito1.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_mandelbrot_/nagyito_c++/nagyito2.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_mandelbrot_/nagyito_c++/nagyito3.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_mandelbrot_/nagyito_c++/nagyito4.PNG" format="PNG" scale="100"/>
+            </imageobject>
+        </mediaobject>
+
+
+    </section>                     
+                                                                                                                                                                            
+    <section>
+        <title>Mandelbrot nagyító és utazó Java nyelven</title>
+        <para>
+            Az előző feladatban látott C++ nagyítót most Java-ban implementáljuk. 
+            A fordításhoz,futtatáshoz szükséges: <command> sudo apt-get install openjdk-8-jdk </command>.
+        </para>
+        <para>
+            Fordítás, futtatás:
+            <screen>
+                $ javac MandelbrotHalmazNagyító.java 
+                $ java MandelbrotHalmazNagyító 
+            </screen>
+           
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_mandelbrot_/nagyitojava/nagyít.png" format="PNG" scale="25"/>
+                </imageobject>
+            </mediaobject>
+        </para>
+
+    </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                

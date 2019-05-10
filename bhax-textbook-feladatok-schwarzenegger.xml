@@ -1,0 +1,207 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Schwarzenegger!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Szoftmax Py MNIST</title>
+        <para>
+            Python
+        </para>
+        <para>
+            A TensorFlow nyílt forráskódu szabad szoftver, amely gépi algoritmusok 
+            leírását, és végrehajtását segíti elő.
+            Nagyon rugalmas, sokfelé ágazódik a használhatósága pld robotika, 
+            orvoslás, információ kinyerés, beszédfelismerés stb.
+        </para>
+        <para>
+            A feladatban TensorFlow segítségével ismerünk majd fel kézi írással 
+            írt számjegyeket, amelyhez használnunk kell a MNIST adatbázist, 
+            itt vannak a kézírással írt számjegyek képei.               
+        </para>
+        <figure>
+            <title>Minta</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_swarci_/M/MnistExamples.png" />
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            Az első python program összeszoroz két számot neurális hálók segítségével.
+        </para>
+        <programlisting language="python">
+            <textobject>
+                <textdata fileref="./_files_/_swarci_/M/twicetwo.py" />
+            </textobject>
+        </programlisting>
+
+        <para>
+            2*2 így néz ki:
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_swarci_/M/twicetwo.png" />
+            </imageobject>
+        </mediaobject>
+        
+        <para>
+            <link xlink:href="https://www.tensorflow.org/tutorials">https://www.tensorflow.org/tutorials</link>.
+        </para>
+        <programlisting language="python">
+<![CDATA[
+import tensorflow as tf
+mnist = tf.keras.datasets.mnist
+(x_train, y_train),(x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Flatten(input_shape=(28, 28)),
+  tf.keras.layers.Dense(512, activation=tf.nn.relu),
+  tf.keras.layers.Dropout(0.2),
+  tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+])
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+model.fit(x_train, y_train, epochs=5)
+model.evaluate(x_test, y_test)
+]]>
+        </programlisting>
+        
+        
+    </section>        
+
+    <section>
+        <title>Szoftmax R MNIST</title>
+        <para>
+            R            
+        </para>
+        <para>
+            Megoldás videó:
+        </para>
+        <para>
+            Megoldás forrása:                
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...
+        </para>
+    </section>        
+
+    <section>
+        <title>Mély MNIST</title>
+        <para>
+            Python            
+        </para>
+        <para>
+            Megoldás videó:
+        </para>
+        <para>
+            Megoldás forrása:                
+        </para>
+        <para>
+            Tanulságok, tapasztalatok, magyarázat...
+        </para>
+    </section>        
+
+    <section>
+        <title>Deep dream</title>
+        <para>
+            Keras            
+        </para>
+        <para>  
+            Itt olyan képeket szerkeszthetünk, a program segítségével, amit akkor 
+            látunk amikor valamilyen kábítószer, tegyükfel LSD hatása allatt állunk (tripp)     
+        </para>
+        <para>
+            Itt a python virtuálin környezetét élvezzük, <emphasis>virutalenv, venv</emphasis>
+            ami kimondottan hasznos, és rugalmas, és használata annál egyszerübb, 
+            mindössze követni kell a lent látható lépéseket, és már ki is próbálhatjuk.
+        </para>
+        <para>
+            Forrás:
+        </para>
+        <programlisting language="python">
+            <textobject>
+                <textdata fileref="./_files_/_swarci_/deepdream/deep_dream.py" />
+            </textobject>
+        </programlisting>
+        <para>
+            Üzemeljük be a virtuális környezetet:
+        </para>
+        <screen>
+<![CDATA[
+$ virtualenv -p /usr/bin/python3 venv # Készítsük el a virtuális környezetet
+Running virtualenv with interpreter /usr/bin/python3
+Using base prefix '/usr'
+New python executable in /home/b1/Repos/textbook/files/svajci/deepd/venv/bin/python3
+Also creating executable in /home/b1/Repos/textbook/files/svajci/deepd/venv/bin/python
+Installing setuptools, pip, wheel...
+done
+$ source venv/bin/activate # Aktiváljuk a virtuális környezetet
+(venv) $ pip3 install tensorflow keras pillow # Telepítsük a Keras-t
+[...]
+(venv) $ pip3 freeze > requirements.txt # Mentsük el a dependenciákat
+[...]
+]]>
+        </screen>
+    
+        <para>
+            Csapjunk bele:
+        </para> 
+    
+        <screen>
+        <![CDATA[
+       $ python deep_dream.py bemeneti_kép_név.jpg kimeneti_kép_név
+       ]]>
+        </screen>
+
+        <figure>
+            <title>A képen a kutyusom láththató, Viliem</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_swarci_/deepdream/v.jpg" />
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+        
+        </para>
+        <figure>
+            <title>Itt szintén ő, a deep dream változata</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_swarci_/deepdream/x.png" />
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>A programban a paramétereket kedvünkre változtathatjuk, ezáltal 
+            erősítve, vagy gyengíve a deep dreamet</para>
+    </section>        
+                  
+    <section>
+        <title>Minecraft-MALMO</title>
+        <para>
+        </para>
+        <para>
+            Megoldás videó:
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://github.com/Microsoft/malmo">https://github.com/Microsoft/malmo</link>.           
+        </para>
+        <para>
+            A Minecraft-MALMO projeckt kisérletezés a mesterséges inteligenciával, 
+            és a fiatalabb generáció ösztönzése az új poblémák megoldására, mind 
+            ezt a Minecraft segítségével. A fentebbi link a projeckt GitHub oldalának linkje, 
+            ahol remek dokumentációkat találhatunk.
+            
+        </para>
+        <screen>
+            <![CDATA[
+            $ cd Minecraft
+            $./launchClient.sh ]]> 
+        </screen>
+    </section>        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+</chapter>                

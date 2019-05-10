@@ -1,0 +1,204 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Welch!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Első osztályom</title>
+        <programlisting language="java">
+<![CDATA[
+public class PolarGenerator {
+    boolean nincsTarolt = true;
+    double tarolt;
+    public PolarGenerator() {
+
+        nincsTarolt = true;
+
+    }
+    public double kovetkezo() {
+        if(nincsTarolt) {
+            double u1, u2, v1, v2, w;
+            do {
+                u1 = Math.random();
+                u2 = Math.random();
+
+                v1 = 2*u1 - 1;
+                v2 = 2*u2 - 1;
+
+                w = v1*v1 + v2*v2;
+
+            } while(w > 1);
+
+            double r = Math.sqrt((-2*Math.log(w))/w);
+
+            tarolt = r*v2;
+            nincsTarolt = !nincsTarolt;
+
+            return r*v1;
+
+        } else {
+            nincsTarolt = !nincsTarolt;
+            return tarolt;
+        }
+    }
+
+    public static void main(String[] args) {
+        PolarGenerator g = new PolarGenerator();
+        for(int i=0; i<10; ++i)
+            System.out.println(g.kovetkezo());
+    }
+}
+]]>
+        </programlisting>
+
+        <screen>
+<![CDATA[$ oszuszki@oszuszki-richard:~$ java PolarGenerator
+-0.5854006412057287
+0.3294220378282633
+-0.5618822511946688
+-0.5162512889534413
+-0.11869578322547197
+1.210163412516636
+0.16919466740119235
+-0.16397819117423162
+-0.6952737986265023
+0.20957744539899742
+oszuszki@oszuszki-richard:~$ java PolarGenerator
+1.058675233600098
+0.6988814229959112
+-0.26362470577717434
+-0.42547452177890543
+-0.7557796238151275
+0.35829458368626993
+0.10611328155606277
+1.6278775533208691
+-1.6280313880302872
+1.1994118333403905]]>
+        </screen>
+
+        
+ 
+        <para>
+            A program 10 db random generált számot ad vissza, a 00 előnye itt 
+            mutatkozik meg, a matematikai háttér számunkra lényegtelen, mégis tökéletesen működik.
+          
+        </para>                
+    </section>        
+
+    <section>
+        <title>LZW</title>
+        <para>
+            Valósítsd meg C-ben az LZW algoritmus fa-építését!
+        </para>
+        <para>
+            Megoldás forrása:                
+        </para>
+        <para>
+            <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_welch_/z3a7.cpp">
+                Z3A7.CPP
+            </link>
+        </para>
+        <para>
+            A LZWBinFa osztály felépíti a bemeneti fájl bináris fáját. Így használjuk:
+            <code>./binfa [bemenő fájl] -o [kimenő fájl]</code>.
+        </para>
+        
+    </section>        
+        
+    <section>
+        <title>Fabejárás</title>
+        <para>
+            Járd be az előző (inorder bejárású) fát pre- és posztorder is!
+        </para>
+        <para>
+            Preorder bejárás = gyökér -> baloldali részfa -> jobboldali részfa
+        </para>
+        <para>
+            Postorder = gyökér -> jobboldali részfa -> baloldali részfa
+        </para>
+        <para>
+            Inorder = bal oldali részfa -> gyökér -> jobboldali részfa
+        </para>
+        <para>
+            Program futtatása:
+            <code>./binfa befile -o kifile [o/r]</code> ahol az o postorder,
+            az r pedig preorder bejárást jelent.
+        </para>
+        
+    </section>        
+                        
+    <section>
+        <title>Tag a gyökér</title>
+        <para>
+            Az LZW algoritmust ültesd át egy C++ osztályba, legyen egy Tree és egy beágyazott Node
+            osztálya. A gyökér csomópont legyen kompozícióban a fával!
+        </para>
+    
+        <para>
+            A már megírt programban, a gyökér, már alápjáraton kompozícióban van a fával.             
+        </para>
+        <para>
+            <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_welch_/z3a7.cpp">
+                Z3A7.CPP
+            </link>
+        </para>
+    </section>        
+                
+    <section>
+        <title>Mutató a gyökér</title>
+        <para>
+            Írd át az előző forrást, hogy a gyökér csomópont ne kompozícióban, csak aggregációban legyen a 
+            fával!
+        </para>
+        <para>
+            Megoldás forrása:  
+        </para>
+        <para>
+            <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_welch_/_m-a-gy_/z3a7.cpp">
+                Z3A7.CPP
+            </link>
+        </para>
+        <para>
+            Itt a bineáris fánk, a gyökére mutat.
+        </para>
+        <para>
+             <function>gyoker</function>-t pointerre írjuk át, 
+        </para>
+        <para>
+            <programlisting language = "c++">
+                Csomopont *gyoker;
+            </programlisting>
+           Futtatáskor rengeteg hibát ad vissza, de no problem, megyünk tovább,
+           a konstruktort is változtassuk meg.
+            <programlisting language="c++">
+LZWBinFa ()
+    {
+        gyoker = new Csomopont ('/');
+        fa = gyoker;
+    }
+            </programlisting>
+            A gyoker és a fa mutatónkat új tárterületre állítjuk, a foglalt 
+            területet fel szabadítjuk.
+            <programlisting language="c++"><![CDATA[
+~LZWBinFa ()
+    {
+        szabadit (gyoker->egyesGyermek ());
+        szabadit (gyoker->nullasGyermek ());
+        delete(gyoker);
+    }]]>
+            </programlisting>
+            A gyökér mutató lett, tehát a gyökér álltatl mutatott csomópont egyes 
+            és nullás gyermekére kell meghívnunk a szabadit függvényt.
+            A gyokér által mutatott területet a  <function>delete()</function>-el szabadítjuk fel.
+            Töröljük mindenhol a <![CDATA[&]]> címképző operátort, azaz mostmár 
+            nem a gyökér memóriacímét kell átadni, hanem a gyökeret.   
+        </para>
+
+        
+    </section>                     
+
+                         
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                
