@@ -1,0 +1,563 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Caesar!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>
+            <type>int **</type> háromszögmátrix</title>
+        <para>            
+            Itt a C nyelv egyik nagy előnye mutatkozik meg, ami a dinamikus
+            memóriakezelés. Ebben a példában létrehozunk egy duble ** háromszögmátrixot, 
+            ami lényegében egy két dimenziós tömb (C-ben a <code>[]</code> jelek használata a
+            tömbök kezelésére csupán egy fordító adta kényelem, hogy ne kelljen
+            mindig mutató-, és cím aritmetikával foglalkozunk).A különbség itt
+            az lesz, hogy nem mondjuk meg előre, hogy hány
+            elemű tömbjeink lesznek, hanem azokat majd dinamikusan
+            foglaljuk le.
+        </para>
+        <programlisting language="c">
+<![CDATA[
+#include <stdio.h>
+#include <stdlib.h>
+
+int
+main ()
+{
+    int nr = 5;
+    double **tm;
+    
+    printf("%p\n", &tm);
+    
+    if ((tm = (double **) malloc (nr * sizeof (double *))) == NULL)
+    {
+        return -1;
+    }
+
+    printf("%p\n", tm);
+    
+    for (int i = 0; i < nr; ++i)
+    {
+        if ((tm[i] = (double *) malloc ((i + 1) * sizeof (double))) == NULL)
+        {
+            return -1;
+        }
+
+    }
+
+    printf("%p\n", tm[0]);    
+    
+    for (int i = 0; i < nr; ++i)
+        for (int j = 0; j < i + 1; ++j)
+            tm[i][j] = i * (i + 1) / 2 + j;
+
+    for (int i = 0; i < nr; ++i)
+    {
+        for (int j = 0; j < i + 1; ++j)
+            printf ("%f, ", tm[i][j]);
+        printf ("\n");
+    }
+
+    tm[3][0] = 42.0;
+    (*(tm + 3))[1] = 43.0;	// mi van, ha itt hiányzik a külső ()
+    *(tm[3] + 2) = 44.0;
+    *(*(tm + 3) + 3) = 45.0;
+
+    for (int i = 0; i < nr; ++i)
+    {
+        for (int j = 0; j < i + 1; ++j)
+            printf ("%f, ", tm[i][j]);
+        printf ("\n");
+    }
+
+    for (int i = 0; i < nr; ++i)
+        free (tm[i]);
+
+    free (tm);
+
+    return 0;
+}
+
+]]>
+        </programlisting>
+
+        <para>
+            Először meg adjuk hogy hányas tömböt szeretnénk létrehozni, majd ezt 
+            eltároljuk egy váltözóba. Ezután le foglaljuk magát a hm Ezután
+            lefoglaljuk magát a hm háromszögmátrixot, és a megértés érdekében
+            kiíratjuk a memória címét is (példa lentebb).
+            Ezután lefoglalunk <code>db</code> darab (esetünkben 5)
+            tömböt (ezek lesznek a sorok), amelyek a következő lépésben hasonlóan
+            tartalmazni fognak 5 db tömböt (ezek pedig az oszlopok).
+        </para>
+
+        <para>
+            Egy alsó háromszögmátrix egy olyan mátrix, melyben a főátló felett csupán
+            nullák vannak. A programunk egy kvadratikus háromszögmátrixot készít el,
+            olyan módon, hogy minden elemét úgy állítjuk be, hogy <code>(i+1)/(j+1)</code>,
+            ahol az i a sor	száma, a j pedig az oszlop száma. A +1 azért kell, hogy ne osszunk
+            nullával véletlenül se.
+            
+            
+        </para>
+        <screen>
+<![CDATA[$ gcc doubleharomszog.c  && ./a.out
+Mutato cime: 0x7fffbc435de0
+Sorok tombjenek cime: 0x5567bca69670
+Elso sor cime: 0x5567bca696a0
+|1.00  0.00  0.00  0.00  0.00  |
+|2.00  1.00  0.00  0.00  0.00  |
+|3.00  1.00  1.00  0.00  0.00  |
+|4.00  2.00  1.00  1.00  0.00  |
+|5.00  2.00  1.00  1.00  1.00  |]]>
+        </screen>
+        <para>
+            A feladat tanulsága, hogy a [] jelek valóban csak a
+            fordító adta kényelmi funkció. C-ben azt a kifejezést, hogy
+            <code language="c">hm[1][1]</code> legalább háromféleképpen
+            fejezhetjük ki, melyek a következők:
+            <code language="c">(*hm[1]+1)</code>, vagy
+            <code language="c">(*(*hm + 1)+1)</code>.
+        </para>
+            
+    </section>        
+    <section>
+        <title>C EXOR titkosító</title>
+        <para>
+            Az XOR titkosító programunk egyszerűen működik, az
+            argumentumból kiolvassuk a kulcsot aztán a <code>while</code>
+            ciklusban olvassuk az érkező bementet a
+            sztenderd inputon. Majd megnézzük a bemenetünk méretét,
+            és ennek a teljes tartalmát "titkosítjuk", azaz
+            elvégezzük rajta a bitenkénti XOR utasítást
+            <code language="c">buffer[i] ^= key[key_index];</code>).
+            Ezután vesszük a buffert és kinyomjuk az úgynevezett
+            sztenderd outputon. Ez azért jó, mert a felhasználó
+            egyszerűen inspektálhatja, vagy fájlba írhatja a kimenetet,
+            legalábbis UNIX-jellegű operációs rendszerek alatt.
+        </para>
+        <programlisting language="c">
+<![CDATA[
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+
+#define MAX_KULCS 100
+#define BUFFER_MERET 256
+
+int
+main (int argc, char **argv)
+{
+
+  char kulcs[MAX_KULCS];
+  char buffer[BUFFER_MERET];
+
+  int kulcs_index = 0;
+  int olvasott_bajtok = 0;
+
+  int kulcs_meret = strlen (argv[1]);
+  strncpy (kulcs, argv[1], MAX_KULCS);
+
+  while ((olvasott_bajtok = read (0, (void *) buffer, BUFFER_MERET)))
+    {
+
+      for (int i = 0; i < olvasott_bajtok; ++i)
+	{
+
+	  buffer[i] = buffer[i] ^ kulcs[kulcs_index];
+	  kulcs_index = (kulcs_index + 1) % kulcs_meret;
+
+	}
+
+      write (1, buffer, olvasott_bajtok);
+
+    }
+}
+]]>
+        </programlisting>
+       
+              
+    </section>        
+    <section>
+        <title>Java EXOR titkosító</title>
+        <para>
+            Írj egy EXOR titkosítót Java-ban!
+        </para>
+        <para>
+            A Java egy objektum orientált nyelv, ami a C-vel nagyon hasonló szintaktikailag, 
+            de nincs benne semmi féle memóriakezelés.
+        </para>
+        <programlisting language="java">
+<![CDATA[
+import java.util.*;
+
+class XorEncode {
+	public static void main(String[] args) {
+		String kulcs = "";
+
+		if(args.length > 0) {
+			kulcs = args[0];
+		} else {
+			System.out.println("Kulcs nelkul nem titkositok!");
+			System.out.println("Hasznalat: java XorEncode.java [kulcs]");
+			System.exit(-1);
+		}
+
+		Scanner sc = new Scanner(System.in);
+		String str = "";
+
+		while(sc.hasNext()) {
+			str = sc.next();
+			System.out.println(xor(kulcs, str));
+		}
+	}
+
+	public static String xor(String kulcs, String s) {
+		StringBuilder sb = new StringBuilder();
+
+		for(int i = 0; i < s.length(); i++) {
+			sb.append((char)(s.charAt(i) ^ kulcs.charAt(i % kulcs.length())));
+		}
+
+		return sb.toString();
+	}
+}
+]]>     
+
+        </programlisting>
+        
+       
+        <para>
+            Hasonlóan járunk el mint a C változatban.
+        </para>   
+    </section>        
+    <section>
+        <title>C EXOR törő</title>
+        <para>
+            Megoldás forrása:  <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_caesar_/exortoro.c">https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_caesar_/exortoro.c</link>           
+        </para>  
+        <!--
+        <programlisting language="c">
+            <textobject>
+                <textdata fileref="./_files_/_caesar_/xortoro.c" />
+            </textobject>
+        </programlisting> 
+        --> 
+        <para>
+            Ez a program csak olyan állományok feltörésére alkalmas,
+            amelyeknek a kulcsa csak számokból áll, és 8 karakter
+            hosszú. Ezt a kódban lehet módosítani.
+        </para>
+        <para>
+            A programunk egy bruteforce algoritmust használ, hogy visszafejtse
+            a titkosított szöveget. A bemenetet olvasva a program
+            meghatározza a szavak hosszát, és amennyiben ez megfelel egy
+            bizonyos értékhatárnak, megnézi, hogy előfordulnak-e benne
+            a leggyakoribb magyar szavak (
+            <emphasis>a, meg, vagy, van, volt, már, stb...</emphasis>),
+            és ha sikerül találni ilyeneket, akkor kiírja a kimenetre.
+        </para>
+        <para>
+            Ebben a példában ismét az OpenMP-t használjuk párhuzamosításra,
+            hogy minél gyorsabban végezzünk a töréssel.
+        </para>          
+    </section>        
+    <section>
+        <title>Neurális OR, AND és EXOR kapu</title>
+        <para>
+            R
+        </para>
+        <para>
+            Megoldás videó: <link xlink:href="https://youtu.be/Koyw6IH5ScQ">https://youtu.be/Koyw6IH5ScQ</link>
+        </para>
+        <para>
+            Megoldás forrása: <link xlink:href="https://gitlab.com/nbatfai/bhax/tree/master/attention_raising/NN_R">https://gitlab.com/nbatfai/bhax/tree/master/attention_raising/NN_R</link>
+            <link xlink:href="https://github.com/Oszuszki/_owntextbookproject_/blob/master/_files_/_caesar_/neuralis" > neuralis </link>              
+        </para>
+        <para>
+            A neuron az elektromos jelek összegyűjtéséért, feldolgozásáért és szétterjesztéséért felelős agysejt.
+            Az agy információfeldolgozó kapacitása elsősorban neuronok hálózatából alakult ki.
+
+        </para>
+        <para>
+            Itt az R programban egy neutrális hálót építünk fel, amely úgy 
+            működik, hogy meg adjuk milyen bemenetre, milyen kimenetet várunk, amit 
+            a program meg próbál mesterségesen utánozni
+        </para>
+        <para>
+            1 és a2 értékeket tartalmaz, az OR pedig a logikai VAGY műveletet jelöli. A program az általunk meghatározott szabályok alapján elkezd tanulni.
+            A <function>compute</function> parancs segítségével tudjuk leellenőrizni, hogy a megfelelő eredményeket kaptuk-e vagy sem.
+            A logikai ÉS művelet (AND) betanítása is hasonló módon történik.
+            Az EXOR műveletnél azonban csak többrétegű neuronokkal lehetséges a tanítás (hidden = 2).
+        </para>
+                    
+        <programlisting><![CDATA[
+$ more neuralis.r
+library(neuralnet)
+
+a1    <- c(0,1,0,1)
+a2    <- c(0,0,1,1)
+OR    <- c(0,1,1,1)
+
+or.data <- data.frame(a1, a2, OR)
+
+nn.or <- neuralnet(OR~a1+a2, or.data, hidden=0, linear.output=FALSE, stepmax = 1e+07, threshold = 0.000001)
+
+plot(nn.or)
+
+compute(nn.or, or.data[,1:2])
+
+a1    <- c(0,1,0,1)
+a2    <- c(0,0,1,1)
+OR    <- c(0,1,1,1)
+AND   <- c(0,0,0,1)
+
+orand.data <- data.frame(a1, a2, OR, AND)
+
+nn.orand <- neuralnet(OR+AND~a1+a2, orand.data, hidden=0, linear.output=FALSE, stepmax = 1e+07, threshold = 0.000001)
+
+plot(nn.orand)
+
+compute(nn.orand, orand.data[,1:2])
+
+a1      <- c(0,1,0,1)
+a2      <- c(0,0,1,1)
+EXOR    <- c(0,1,1,0)
+
+exor.data <- data.frame(a1, a2, EXOR)
+
+nn.exor <- neuralnet(EXOR~a1+a2, exor.data, hidden=0, linear.output=FALSE, stepmax = 1e+07, threshold = 0.000001)
+
+plot(nn.exor)
+
+compute(nn.exor, exor.data[,1:2])
+
+a1      <- c(0,1,0,1)
+a2      <- c(0,0,1,1)
+EXOR    <- c(0,1,1,0)
+
+exor.data <- data.frame(a1, a2, EXOR)
+
+nn.exor <- neuralnet(EXOR~a1+a2, exor.data, hidden=c(6, 4, 6), linear.output=FALSE, stepmax = 1e+07, threshold = 0.000001)
+
+plot(nn.exor)
+
+compute(nn.exor, exor.data[,1:2])]]>
+        </programlisting>
+        <para>
+            A Turing-fejezetnél már haaználtuk az R nyelevet (sudo apt install r-base)
+            A neurális hálóhoz azonban szükség van egy új package, a neuralnet telepítésére is. 
+        </para>
+        <programlisting><![CDATA[
+$ sudo -i
+root@oszuszki-richard:~# R
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+
+> install.packages("neuralnet")
+Installing package into ‘/usr/local/lib/R/site-library’
+(as ‘lib’ is unspecified)
+trying URL 'https://cloud.r-project.org/src/contrib/neuralnet_1.44.2.tar.gz'
+Content type 'application/x-gzip' length 27211 bytes (26 KB)
+==================================================
+downloaded 26 KB
+
+* installing *source* package ‘neuralnet’ ...
+** package ‘neuralnet’ successfully unpacked and MD5 sums checked
+** R
+** preparing package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** testing if installed package can be loaded
+* DONE (neuralnet)
+
+The downloaded source packages are in
+	‘/tmp/RtmpzKLwdC/downloaded_packages’
+> q()
+Save workspace image? [y/n/c]: y
+
+
+
+$ Rscript neuralis.r
+$neurons
+$neurons[[1]]
+       a1 a2
+[1,] 1  0  0
+[2,] 1  1  0
+[3,] 1  0  1
+[4,] 1  1  1
+
+
+$net.result
+            [,1]
+[1,] 0.001199652
+[2,] 0.999127840
+[3,] 0.999665104
+[4,] 1.000000000
+
+dev.new(): using pdf(file="Rplots1.pdf")
+$neurons
+$neurons[[1]]
+       a1 a2
+[1,] 1  0  0
+[2,] 1  1  0
+[3,] 1  0  1
+[4,] 1  1  1
+
+
+$net.result
+             [,1]         [,2]
+[1,] 1.352313e-05 2.324786e-09
+[2,] 9.999951e-01 1.265366e-03
+[3,] 9.999909e-01 1.201426e-03
+[4,] 1.000000e+00 9.984769e-01
+
+dev.new(): using pdf(file="Rplots2.pdf")
+$neurons
+$neurons[[1]]
+       a1 a2
+[1,] 1  0  0
+[2,] 1  1  0
+[3,] 1  0  1
+[4,] 1  1  1
+
+
+$net.result
+          [,1]
+[1,] 0.5000047
+[2,] 0.4999999
+[3,] 0.5000015
+[4,] 0.4999967
+
+dev.new(): using pdf(file="Rplots3.pdf")
+$neurons
+$neurons[[1]]
+       a1 a2
+[1,] 1  0  0
+[2,] 1  1  0
+[3,] 1  0  1
+[4,] 1  1  1
+
+$neurons[[2]]
+     [,1]       [,2]      [,3]       [,4]       [,5]       [,6]      [,7]
+[1,]    1 0.04939826 0.9939279 0.02393772 0.01622474 0.08610279 0.9640993
+[2,]    1 0.34475792 0.9925660 0.63066797 0.26255545 0.32004680 0.8650567
+[3,]    1 0.30720762 0.9942785 0.11943347 0.15703431 0.44594585 0.5846982
+[4,]    1 0.81784444 0.9929947 0.90424853 0.80085868 0.80084033 0.2515419
+
+$neurons[[3]]
+     [,1]       [,2]         [,3]         [,4]       [,5]
+[1,]    1 0.02569708 9.687810e-01 0.0004236877 0.99693862
+[2,]    1 0.98115879 5.192263e-03 0.0221381966 0.93650424
+[3,]    1 0.92726506 2.611690e-02 0.0266950688 0.92936080
+[4,]    1 0.99999993 6.730118e-09 0.9880119879 0.02325084
+
+$neurons[[4]]
+     [,1]       [,2]       [,3]       [,4]       [,5]       [,6]       [,7]
+[1,]    1 0.86496705 0.01058845 0.92011779 0.87398264 0.11143327 0.81722131
+[2,]    1 0.02156429 0.99951675 0.02011744 0.75885706 0.97758849 0.01096550
+[3,]    1 0.02643377 0.99923565 0.02485400 0.76028586 0.97319306 0.01421735
+[4,]    1 0.97727737 0.99999830 0.39296493 0.09925582 0.02637285 0.97012081
+
+
+$net.result
+             [,1]
+[1,] 0.0002045972
+[2,] 0.9994468628
+[3,] 0.9994131333
+[4,] 0.0007729238
+]]>
+                
+        </programlisting> 
+        <para>
+            Ezután megkapjuk a szimuláció eredményeit szemléltető ábrákat:
+        </para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_caesar_/neurali/Rplots.pdf" format="PDF" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_caesar_/neurali/Rplots1.pdf" format="PDF" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_caesar_/neurali/Rplots2.pdf" format="PDF" scale="80"/>
+            </imageobject>
+        </mediaobject>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_caesar_/neurali/Rplots3.pdf" format="PDF" scale="80"/>
+            </imageobject>
+        </mediaobject>
+                                                     
+                                                                                                                                                                                      
+    </section>        
+    <section>
+        <title>Hiba-visszaterjesztéses perceptron</title>
+        <para>
+            C++
+        </para>
+        <para>
+            Ebben a feladatban a mandelbrot halmaz által generált kép rgb
+            kódjait áttesszük a neurális háló inputjába,
+            egy három rétegű hálót csinálunk és végül különböző számítások 
+            alapján kapunk a 3. rétegben egy számot.
+        </para>
+        <programlisting language="c++">
+<![CDATA[
+#include <iostream>
+#include "mlp.hpp"
+#include "png++/png.hpp"
+
+int main (int argc, char **argv)
+{
+    png::image <png::rgb_pixel> png_image (argv[1]);
+    int size = png_image.get_width()*png_image.get_height();
+    
+    Perceptron* p = new Perceptron(3, size, 256, 1);
+
+    double* image = new double[size];
+    
+    for(int i {0}; i<png_image.get_width(); ++i)
+         for(int j {0}; j<png_image.get_height(); ++j)
+            image[i*png_image.get_width()+j] = png_image[i][j].red;
+
+    double value = (*p) (image);
+
+    std::cout << value << std::endl;
+
+    delete p;
+    delete [] image;
+
+    
+
+}
+
+]]>
+        </programlisting>
+
+    </section>        
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                
