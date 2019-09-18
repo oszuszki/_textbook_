@@ -3,19 +3,11 @@
     <partintro>
         <para> 
         </para>
-<tip>
-              <title>Bátf41 Haxor Stream</title>
-              <para>
-                  A feladatokkal kapcsolatos élő adásokat sugároz
-                  a <link xlink:href="https://www.twitch.tv/nbatfai">https://www.twitch.tv/nbatfai</link> csatorna,
-                  melynek permanens archívuma a <link xlink:href="https://www.youtube.com/c/nbatfai">https://www.youtube.com/c/nbatfai</link> 
-                  csatornán található.
-              </para>            
-            </tip>    
+
         
     </partintro>
     
-    <xi:include href="bhax-textbook-feladatok2-arroway.xml">
+    <xi:include href="bhax-textbook-feladatok2-berners-lee.xml">
         <xi:fallback>
             <para>
                 <emphasis>XInclude: bhax-textbook-motto.xml file not found</emphasis>
