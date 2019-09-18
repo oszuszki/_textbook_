@@ -1,0 +1,192 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Berner-Lee!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title> C++: Benedek Zoltán, Levendovszky Tihamér Szoftverfejlesztés C++ nyelven VS. Java: Nyékyné Dr. Gaizler Judit et al. Java 2 útikalauz programozóknak 5.0 I-II</title>
+               
+    
+        <para><command>*</command></para>
+        <para>A bevezetésben ki lett fejtve, hogy a Java sok mindent át vett a C++ nyelvtől, sok figyelmet fordított a magbízhatóságra és felhívta a figyelmet
+            a nyelvi szerkezetben felfedezhető újdonságokra, pld.: a mutatók helyett a referenciák használatára, futató környezet korlátozásai.</para>
+        <para><command>*</command></para>
+        <para>A Java nylev teljesen objektum orientált (objektumok, és ezek mintáinak tekinthető ostályok összesége).</para>
+        <para>Egy osztály két dologból állhat: mezőkből, azaz változókból, valamint metódusokból, melyeket erőszeretettel hívunk függvényeknek, 
+        holott nem mindig van visszatérési értékük. Mezőkben tároljuk az a datokat, a metódusokkal pedig az adatokon végezhető műveletek kódját adjuk meg.</para>
+        <para>Megnéztük a HelloVilág programot, Javaban:</para>
+        <programlisting language="java">
+<![CDATA[
+public class Hello {
+	public static void main(String[] args) {
+		System.out.println("Hello Világ");
+	}
+}
+]]>z objektumorientált paradigma alapfoglamai
+        </programlisting>
+        <para>És azt le is fordítottuk:</para>
+        <screen>
+<![CDATA[
+oszuszki@oszuszki-richard:~/javakonyvszarnyprobalgatasok$ javac Hello.java
+oszuszki@oszuszki-richard:~/javakonyvszarnyprobalgatasok$ java Hello
+
+]]>
+        </screen>
+        <para>Megfigyelhettük, hogy a Java fordítóprogram egy bájtkódnak nevezett formátumra fordítja le a forráskódot, melyet a Java Virtuális Gép önálló 
+        interpretensként fog értelmezni. Biztonsági szempontból előnyös, de sebesség terén hátrányos, ez az eljárás.</para>
+        <para>Aztán kielemeztük minden részét a példa kódnak, <code>main</code>, a program fő metódusa, az azt követő <code>static</code> kulcs szó 
+        lehetővé teszi, hogy a Hello ostály futtatása során, nem jön létere egytlen objektum sem, <code>public</code>, ha nem szerepelne a kódban, akkor 
+        a Java meggátolná a program futását, ez teszi lehetővé, hogy a metódus, a külvilág számára is látható legyen, <code>void</code>, nem-függvény 
+        jellegű metódusra, azaz a visszatrési érték elhagyására utal, <code>String[]</code>, szövegtömbön keresztül kerülnek átadásra a parancssor argumentumai.</para>
+        <para><code>System</code> osztály <code>out</code> objektumának <code>println</code> metódusa kerül meghívásra, mely a paraméterként kapot szöveget, 
+        kiírja a szabványos kimenetre, egy újsor karakterrel kiegészítve azt.</para>
+        <para>Java nyelv egy figyelemre méltó újdonsága, az ASCII karrakterészletből hiányzó karaktereket, nemcsak a szövegliterátorokba, hanem a megjegyzésekben, sőt 
+        az azonosítókban is lehet használni.</para>
+        <para><command>*</command></para>
+        
+        <para> A Java nyelv teljesen objektumorientált. Egy osztály két dologból tevődik össze:
+            mezők(adatok tárolása), metódusok(adatokon végezhető műveletek kódja.</para>
+        <para>Futtatáshoz szükségünk van egy Java nevű fordítóprogramra. Ez egy bájtkódnak nevezett
+            formátumra fordítja le a forráskódot, amelyet majd a Java Virtuális Gép önálló
+            interpreterként fog értelmezni. Ez lassabb futást eredményez. A legnagyobb különbség a
+            Java illetve a C++ között itt mutatkozik. A C++ kézenfekvőbb, ha olyan programokat
+            szeretnénk írni, amelyeknél a futás sebessége elsődleges szempont. A Java inkább a
+            web-es téren elterjedt.</para>
+        <para>A Java nyelvnek vannak egyszerű típusai is, melyeket az adatok egyszerű
+            reprezentálására lehet használni. Ezeknek értéket adni az '=' operátorral lehet.
+            Ilyenkor ez valódi értékadást jelent, összetett típusok esetében csak egy referencia
+            átmásolását jelenti.</para>
+        <para>Eltérés még a C++ és a Java között, hogy Java-ban már 16 bites Unicode karaktereket is
+            lehet használni változók vagy konstansok deklarálásához, tehát használhatunk ékezetes
+            karaktereket, görög ábécé betűit, stb.</para>
+        <para>Megjegyzéseket ugyanúgy adhatunk hozzá a kódhoz, mint a C++ esetében.</para>
+        <para>A Java nyelveben semmilyen explicit eszköz nincs egy objektum megszüntetésére,
+            egyszerűen nem kell hivatkozni rá és magától meg fog szűnni. Hivatkozás megszüntetéséhez
+            az eddigi referencia helyett a null referenciát adjuk neki értékül.</para>
+        <para>A Java nyelvben tömböket a [] jelöléssel lehet megadni. A C++-tól eltérően ez egy
+            igazi típus lesz és nem csak a mutató típus egy másik megjelenítési formája. A tömb
+            típusok nem primitív típusok, a tömb típusú változók objektumhivatkozást tartalmaznak.
+            Eltérés még a C++ és a Java között, hogy a Java-ban nincsenek többdimenziós tömbök, erre
+            a tömb a tömbben megoldást használja.</para>
+        <para>További eltérés még a Goto utasítás teljes hiánya, ez a Java nyelvből kimaradt. </para>
+        <para>Java-ban egy objektumot a következő képen példányosítunk. </para>
+        <programlisting language="c++"><![CDATA[
+#Adott egy objektum
+public class Alkalmazott {
+String nev; int fiztes;
+void fizetesemeles (int novekmeny) {
+    fizetes += novekmeny
+    }
+}
+#Példányosítás
+Alkalmazott a = new Alkalmazott();
+]]></programlisting>
+        <para>A new operátor mögött adjuk meg, h melyik osztályt példányosítjuk. A zárójelek közék
+            közé az adott esetben a konstruktornak szánt paramétereket írjuk. Csakúgy, mint a
+            C++-ban, itt is vannak nyilvános (public) és privát (private) tagok. A private tagokhoz
+            az adott osztályon kívül nem férhet hozzá semmi.</para>
+        <para>Java megkülönbözteti a referenciát és az imperatív programozási nyelvekben használt
+            mutatót aképpen, hogy a kifejezésekben automatikusan a mutatott objektumot jelenti, nem
+            pedig a címet.</para>
+        
+        
+       
+           </section>   
+            
+    <section>
+        <title>Python: Forstner Bertalan, Ekler Péter, Kelényi Imre: Bevezetés a mobilprogramozásba.</title>
+            <para> A Python egy általános célú programozási nyelv. Alkotója Guido van Rossum. Leginkább
+                prototípus készítésre és tesztelésre szokás alkalmazni. Képes együttműködni más
+                nyelveken íródott modulokkal. Elterjedtségét főként az imént említett tulajdonságának,
+                valamint a rövid tanulási ciklusnak köszönheti. A Python-ban megírt programok
+                terjedelmükben jóval rövidebbek, mint a C, C-ben, C++-ban vagy Java-ban készült, velük
+                ekvivalens társaik. A kódok tömörek és könnyen olvashatóak. A kódcsoportosításhoz új
+                sort és tabulátort használ (behúzásalapú), nincs szükség nyitó és zárójelekre, nincs
+                szükség változó vagy argumentumdefiniálásra. Az utasítások a sorok végéig tartanak,
+                nincs szükség ';'-re, ha egy adott utasítást a következő sorban szeretnénk folytatni,
+                akkor ezt a '\' jellel tehetjük meg.</para>
+            <para>Példa:</para>
+            <programlisting language="c++"><![CDATA[
+if feltétel1 és feltétel2
+    alapfeladat()
+egyébfeladat()
+]]></programlisting>
+            <para>Az értelmező a sorokat tokenekre bontja, amelyek közt tetszőleges üres (whitespace)
+                karakter lehet. A tokenek lehetnek: azonosító(változó, osztály, függvénymodul),
+                kulccszó, operátor, delimiter, literál.</para>
+            <para>Lefoglalt kulcsszavak: and, del, for, is, raise, assert, elif, from, lambda, return,
+                break, else, global, not, try, class, except, if, or, while, continue, exec, import,
+                pass, yield, def, finally, in, print.</para>
+            <para>Típusok</para>
+            <para>A Pythonban minden adatot típusok reprezentálna. Az adatokon végezhető műveleteket az
+                objektum típusa határozza meg. A változók típusait a rendszer futási időben
+                "kitalálja".</para>
+            <para>Számok lehetnek:egészek(decimális, oktális, hexadecimális), lebegőpontosak és komplex
+                számok.</para>
+            <para>Sztringeket aposztrófok közé írva adhatunk meg, illetve a 'u' betű használatával
+                Unicode szövegeket is felvehetünk.</para>
+            <para>Példa:</para>
+            <programlisting language="c++"><![CDATA[
+print u"Hello %s, kedves %s!"
+]]></programlisting>
+            <para>Az ennesek (tuples) objektumok gyűjteményei vesszővel elválasztva.</para>
+            <para>Példa:</para>
+            <programlisting language="c++"><![CDATA[
+('a','b','c') #három elemű ennes
+tuple('abc') #tuple generálás kulcsszóval (ugyanaz, mint az előző)
+() #üres ennes
+(1, "szia", 3,) #három elemű ennes, az utolsó vessző elhagyható
+]]></programlisting>
+            <para>A lista különbőző típusú elemek rendezett szekvenciája, elemeit szögletes zárójelek
+                közé írjuk, dinamikusan nyújtózkodik. Az elemeket az indexükkel azonosítjuk.</para>
+            <para>Példa:</para>
+            <programlisting language="c++"><![CDATA[
+[a','b','c'] #három elemű lista
+list('abc') #lista generálás kulcsszóval (ugyanaz, mint az előző)
+[] #üres ennes
+[1, "szia", 3,] #három elemű lista, az utolsó vessző elhagyható
+]]></programlisting>
+            <para>A szótár kulcsokkal azonosított elemek rendezetlen halmaza. Kulcs lehet: szám, sztring
+                stb. </para>
+            <para>Példa:</para>
+            <programlisting language="c++"><![CDATA[
+{'a':1, 'b':5, 'e':1982}
+{1:1, 2:1, } #az utolsó vessző elhagyható
+{} #üres szótár
+]]></programlisting>
+            <para>Változók Pythonban - egyes objektumokra mutató referenciák. Típusaik nincsenek. A
+                hozzárendelést az '=' karakterrel végezzük. A del kulcsszóval törölhető a hozzárendelés,
+                a mögöttes objektum törlését a garbage collector fogja elvégezni. Léteznek globális és
+                lokális változók (akárcsak a C++-ban). A változók közötti típuskonverzió
+                támogatott.</para>
+            <para>A szekvenciákon (sztringek, listák, ennesek) műveletek végezhetőek el (összefűzés,
+                szélsőértékhelyek meghatározása stb).</para>
+            <para>Az elágazások és ciklusok működése megegyezik a többi programnyelvével. </para>
+            <para>Függvényeket a def kulccszóval definiálunk, tekinthetünk rájuk úgy, mint értékekre,
+                mivel továbbadhatóak más függvényeknek illetve objektumkonstruktoroknak.</para>
+            <programlisting language="c++"><![CDATA[
+def hello();
+    print "Hello world!"
+    return
+]]></programlisting>
+            <para> A Python támogatja a klasszikus, objektumorientált fejlesztési eljárásokat
+                (osztályokat definiálunk, amelyek példányai az objektumok. Osztályoknak lehetnek
+                attribútumaik(objektumok, függvények) illetve örökölhetnek más osztályokból.</para>
+            <para>A kivételkezelés:</para>
+            <para>Példa</para>
+            <programlisting language="c++"><![CDATA[
+try:
+    utasítások
+except [kifejezés]: #akkor fut le,ha az történik, amit a try után leírtunk
+[else:
+    utasítások]
+]]></programlisting>
+       
+        
+       
+        </section>
+        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+</chapter>                
