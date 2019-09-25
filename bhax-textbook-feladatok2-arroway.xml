@@ -5,37 +5,274 @@
             <keyword/>
         </keywordset>
     </info>
-
+    
     <section>
-        <title>A BPP algoritmus Java megvalósítása</title>
+        <title>OO szemlélet</title>
         <para>
         </para>
-        <para>
-            Megoldás videó:
-        </para>
+        <para> </para>
+        <para>Az objektumorientált programozás fő alapelve, hogy osztályokat hozunk létre, ezekkel
+            dolgozunk, az osztályok elemeit, objektumoknak nevezzük, és az az objektumok
+            rendelkeznek az osztály öszess tulajdonságával. Ezzel megkönyítjük a munka menetét,
+            mivel az osztály létrehozásakor megadott tulajdonságokkal az összes benne megadott elem
+            fog rendelkezni.</para>
+        <para>A lenti példa elején létre hozunk egy PolarGenerator nevű osztályt, amiben két
+            változó, és egy függvény található. A nincsTarolt változó lesz felelős azért, hogy van e
+            változó eltárolva, amennyiben nincs, a függvény generál két véletlenszerű számot, az
+            egyiket eltárolja, a másikat visszaadja, viszont, ha viszont van eltárolt változó, akkor
+            azt fogja vissza adni. A feltételes utasítás mindkét ágában negálja a nincsTarolt
+            változó értékét.</para>
+     
+        <programlisting language="java">public class PolarGenerator { 
+	
+	boolean nincsTarolt = true;
+	double tarolt;
+	
+	public PolarGenerator(){
+		nincsTarolt = true;
+	}
+
+	public double kovetkezo(){
+		if(nincsTarolt){
+			double u1, u2, v1, v2, w;
+			do{
+				u1 = Math.random();
+				u2 = Math.random();
+				v1 = 2 * u1 - 1;
+				v2 = 2 * u2 - 1;
+				w = v1 * v1 + v2 * v2;
+				} while (w>1);
+				double r = Math.sqrt((-2 * Math.log(w))/w);
+				tarolt = r * v2;
+				nincsTarolt = !nincsTarolt;
+				return r * v1;
+				} else {
+				nincsTarolt = !nincsTarolt;
+				return tarolt;
+				}
+			}
+
+			public static void main (String[] args){
+				PolarGenerator g= new PolarGenerator();
+				for (int i=0;i &lt; 10;i++){
+					System.out.println(g.kovetkezo());
+				}
+			}
+		}
+</programlisting>
+    </section>    
+    
+    
+    
+    <section>
+        <title>"Gagyi"</title>
         <para>
             Megoldás forrása:                
         </para>
-        <para>
-            Tanulságok, tapasztalatok, magyarázat...
-        </para>
-    </section>        
+        <para>Az ismert formális 2 <code>„while (x &lt;= t &amp;&amp; x >=t &amp;&amp; t !=
+                x)”</code> tesztkérdéstípusra adj a szokásosnál (miszerint x, t az egyik esetben az
+            objektum által hordozott érték, a másikban meg az objektum referenciája) „mélyebb”
+            választ, írj Java példaprogramot mely egyszer végtelen ciklus, más x, t értékekkel meg
+            nem! A példát építsd a JDK Integer.java forrására 3 , hogy a 128-nál inkluzív objektum
+            példányokat poolozza!</para>
+        <programlisting language="java">
+            <![CDATA[
+            public class Gagyi
+{
 
+public static void main (String[]args)
+{
+
+Integer x = 333;
+Integer t = 333;
+
+System.out.println (x);
+System.out.println (t);
+
+while (x <= t && x >= t && t != x);
+
+}
+
+}
+]]>
+</programlisting>
+        <para>A while ciklusba deklarált értekek, amennyiben 128-tól nagyobb vagy -128-tól kissebb értéket vesznek fel, a ciklus egy végtelen ciklusba fordul át, 
+            ellenkező esetben leáll. A két értéknek ugyan annyinak kell lennie.</para>
+        <programlisting language="java">
+            <![CDATA[
+            public class GagyiL
+{
+
+public static void main (String[]args)
+{
+
+Integer x = 66;
+Integer t = 66;
+
+System.out.println (x);
+System.out.println (t);
+
+while (x <= t && x >= t && t != x);
+
+}
+
+}
+
+        ]]>
+        </programlisting>
+    </section>
     <section>
-        <title>Java osztályok a Pi-ben</title>
-        <para>
-            Az előző feladat kódját fejleszd tovább: vizsgáld, hogy Vannak-e Java osztályok a Pi hexadecimális kifejtésében!
-        </para>
-        <para>
-            Megoldás videó:
-        </para>
-        <para>
-            Megoldás forrása:                
-        </para>
-        <para>
-            Tanulságok, tapasztalatok, magyarázat...
-        </para>
-    </section>        
+        <title>Yoda</title>
+        <para>Írtunk egy programot, amely java.lang.NullPointerEx-el leáll, ha eltérünk a Yoda
+            conditiontől, ami arról szól, hogy a feltétel sorrendje megfordul, baloldalon, a
+            konstans foglal helyet.</para>
+        <programlisting language="java">
+<![CDATA[
+
+public class Yoda {
+    public static void main(String[] args)
+    {
+        String myname = null;
+        if (myname.equals("Ricsi")) { 
+			System.out.println(""BingBengBong"");
+		}
+    }
+}
+        ]]>
+        </programlisting>
+        <screen>
+            oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_arroway_$ javac Yoda.java
+            oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_arroway_$ java Yoda
+            Exception in thread "main" java.lang.NullPointerException
+            at Yoda.main(Yoda.java:6)
+        </screen>
+        <para>A myname, nem változó, hanem egy null pointer, ezáltal adja a NullPointerExeption-t,
+            mivel a nullpointert akarjuk hasonlítani a "Ricsi" konstanshoz.</para>
+        <para>Viszont, ha megfordítjuk a feltétel sorrendjét, akkor fog működni a Yoda condition,
+            String literátorhoz már hasonlíthatunk null értéket, ami a mi kódcsipetünkben false
+            értéket fog adni. Ezzel a módszerrel értékadás-hasonlítás vagy a null értékekből eredő
+            problémákra tudunk megoldást találni... </para>
+        <programlisting language="java">
+<![CDATA[
+public class Joda {
+    public static void main(String[] args)
+    {
+        String myname = "Ricsi";
+        if ("Ricsi".equals(myname)) { 
+			System.out.println("BingBengBong");
+		}
+    }
+}        ]]>
+	
+        </programlisting>
+    </section>
+    <section>
+        <title>Kódolás from scratch</title>
+        <para>Megoldás forrása:<link
+            xlink:href="https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/apbs02.html#pi_jegyei"
+        /></para>
+        <programlisting>public class PiBBP {
+    
+    String d16PiHexaJegyek;
+    
+    public PiBBP(int d) {
         
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-</chapter>                
+        double d16Pi = 0.0d;
+        
+        double d16S1t = d16Sj(d, 1);
+        double d16S4t = d16Sj(d, 4);
+        double d16S5t = d16Sj(d, 5);
+        double d16S6t = d16Sj(d, 6);
+        
+        d16Pi = 4.0d*d16S1t - 2.0d*d16S4t - d16S5t - d16S6t;
+        
+        d16Pi = d16Pi - StrictMath.floor(d16Pi);
+        
+        StringBuffer sb = new StringBuffer();
+        
+        Character hexaJegyek[] = {'A', 'B', 'C', 'D', 'E', 'F'};
+        
+        while(d16Pi != 0.0d) {
+            
+            int jegy = (int)StrictMath.floor(16.0d*d16Pi);
+            
+            if(jegy&lt;10)
+                sb.append(jegy);
+            else
+                sb.append(hexaJegyek[jegy-10]);
+            
+            d16Pi = (16.0d*d16Pi) - StrictMath.floor(16.0d*d16Pi);
+        }
+        
+        d16PiHexaJegyek = sb.toString();
+    }
+    
+    public double d16Sj(int d, int j) {
+        
+        double d16Sj = 0.0d;
+        
+        for(int k=0; k&lt;=d; ++k)
+            d16Sj += (double)n16modk(d-k, 8*k + j) / (double)(8*k + j);
+        
+        
+        
+        return d16Sj - StrictMath.floor(d16Sj);
+    }
+    
+    public long n16modk(int n, int k) {
+        
+        int t = 1;
+        while(t &lt;= n)
+            t *= 2;
+        
+        long r = 1;
+        
+        while(true) {
+            
+            if(n >= t) {
+                r = (16*r) % k;
+                n = n - t;
+            }
+            
+            t = t/2;
+            
+            if(t &lt; 1)
+                break;
+            
+            r = (r*r) % k;
+            
+        }
+        
+        return r;
+    }
+   
+    public String toString() {
+        
+        return d16PiHexaJegyek;
+    }
+    
+    public static void main(String args[]) {        
+        System.out.print(new PiBBP(1000000));
+        System.out.println("");
+    }
+}</programlisting>
+        <para>1995-ben felfedezett, Baliey-Browein-Plouffe formula, a pi kiszámítására létrehozott
+            algoritmus, mely a szerzőiről kapta a nevét.</para>
+        <para>A fenti program a pi szám hexadecimális értékét fogja visszaadni.</para>
+        <para>Ezzel az algoritmussal működik:</para>
+        <para><inlinemediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_arroway_/alg.png"/>
+            </imageobject>
+        </inlinemediaobject></para>
+        <para>Láthatóan le is fut, és kiírja a pi hexadecimális értékét:</para>
+        <screen>    oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_arroway_$ javac PiBBP.java
+    oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_arroway_$ java PiBBP
+    6C65E5308
+            </screen>
+    
+    </section>
+    
+    
+    
+</chapter>   
