@@ -1,0 +1,261 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Liskov!!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    
+    <section>
+        <title>Liskov helyettesítés sértése</title>
+        <para>A feladat azt kéri, hogy írjunk OO kódcsipetet a Liskov helyetesítési sértésre, Java, és C++
+            nyelven, és muassunk rá a megoldásra.</para>
+        <para>Java kódcsipet:</para>
+        <programlisting language="java">
+            <![CDATA[
+            class Madar
+{
+        
+    public void  repul()
+    {
+			
+            System.out.println(this.getClass().getName() + ": " + "repül!");
+    }
+}
+class Sass extends  Madar
+{
+}
+class Pingvin extends  Madar
+{
+}
+class Liskov
+{
+
+    public static void repulMadar(Madar madar)
+    {
+        madar.repul();
+    }
+
+    public static void main(String[] args)
+    {
+        Madar sass = new Sass();
+        Madar pingvin = new Pingvin();
+        
+        repulMadar(sass);
+        repulMadar(pingvin);
+        
+        
+    }
+
+}
+]]>    </programlisting>
+        <para>Működése:</para>
+        <screen>oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_liskov_$ javac Liskov.java
+oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_liskov_$ java Liskov
+Sass: repül!
+Pingvin: repül!
+oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_liskov_$</screen>
+        <para>C++ kódcsipet:</para>
+        <programlisting language="java">
+            <![CDATA[
+        #include <iostream>
+            
+            class Madar
+            {
+            
+            public:
+            
+            virtual void  repul()
+            {
+            std::cout << "Repül!\n" ;
+            }
+            };
+            
+            class Sass : public Madar
+            {
+            };
+            
+            class Pingvin : public Madar
+            {
+            };
+            
+            static void repulMadar(Madar& m)
+            {
+            m.repul();
+            }
+            
+            int main()
+            {
+            Sass sass;
+            Pingvin pingvin;
+            
+            repulMadar(sass);
+            repulMadar(pingvin);
+            
+            return 0;
+            }
+            ]]>
+            </programlisting>
+        <para>A Liskov elv arról szól, hogy tegyük fel van, a Madarak osztálya, "T" és ennek altípusa minde madár, "S", és ahol a T szerepel, oda gond nélkül behelyettesíthetjük 
+        az S-t, a programrész tulajdonságainak megváltozása nélkül, nos a fentebb látható kódok, sértik ezt az elvet, mivel, ugye van a Madarak osztály, ahová tartoznak 
+        a madarak, lásd példában sass és pingvin, a madarak osztály tulajdonsága a repülés, és itt ütközünk problémába, mivel a pingvinek röppképtelenek.</para>
+        <para>A megoldás igazán egyszerű, ahhoz hogy a program helyesen működjön, a madarak osztályát fel kell bontanunk két alosztályra: repülő és nem repülő madarak:</para>
+        <programlisting language="c++">
+<![CDATA[
+class Sass : public repuloMadar
+{
+};
+
+class Pingvin : public nemrepuloMadar
+{
+};
+         ]]>
+        </programlisting> 
+        
+        <para>Mivel már tiszta, hogy a pingvin röpképtelen, így megcsinálhatjuk, hogy a függvényünk csak repülő madarakat fogadjon el.</para>
+        <programlisting language="c++">
+            <![CDATA[
+static void repulMadar(repuloMadar& madar)
+{
+    madar.repul();
+}
+            ]]>
+        </programlisting> 
+        
+            <para>Ezáltal a mi kódcsipetünkben sem fog előfordúlni a pingvin, mint repülő madár.</para>
+    </section>    
+    <section>
+        <title>Szülő-gyerek</title>
+        <para>
+            A szülő-gyerek feladatban a cél az volt, hogy írjunk egy olyan Java és C++ osztálydefiníciót melybenn megfigyelhető az, hogy az ősön keresztül, csak az ős üzenetei 
+            küldhetőek. Azaz ha definiálunk egy függvényt az altípusban és az altípust szupertípusként használjuk, akkor a saját függvényei nem lesznek elérhetőek.
+        </para>
+        <para>Java kód:</para>
+        <programlisting language="java">
+<![CDATA[
+        class szulo
+        {
+        protected int m_kor;
+        protected String m_nev;
+        public void setKor(int kor) {
+        m_kor = kor;
+        }
+        public void setNev(String nev) {
+        m_nev = nev;
+        }
+        public int getAge(){
+        return m_kor;
+        }
+        }
+        class gyerek extends szulo
+        {
+        public String getNev() {
+        return m_nev;
+        }
+        }
+        class szuloGyerek
+        {
+        public static void main (String args[])
+        {
+        szulo s = new gyerek();
+        s.setNev("Anya");
+        s.setKor(60);
+        gyerek gy = new gyerek();
+        s.setNev("Maria");
+        s.setKor(15);
+        System.out.println(gy.getNev() + " " + s.getNev());
+        }
+        }
+           ]]>
+        </programlisting> 
+        <para>A JAVA HIBAÜZENET:</para>
+        <screen>
+        oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_liskov_$ javac szgy.java
+        szgy.java:15: error: class Pc is public, should be declared in a file named Pc.java
+        public class Pc
+        ^
+        szgy.java:23: error: cannot find symbol
+        p2.sayThis("Error");
+        ^
+        symbol:   method sayThis(String)     
+        location: variable p2 of type Parent
+        2 errors
+           </screen>
+            <para>C++ kód:</para>
+        <programlisting language="c++">
+<![CDATA[
+            #include <iostream>
+
+class Teglalap
+{
+public:
+int m_szelesseg;
+int m_magassag;
+Teglalap(int szelesseg, int magassag) {
+m_szelesseg = szelesseg;
+m_magassag = magassag;
+}
+int getszelesseg(){
+return m_szelesseg;
+}
+int getmagassag(){
+return m_magassag;
+}
+};
+class Negyzet : public Teglalap
+{
+public:
+Negyzet(int oldal): Teglalap(oldal, oldal)
+{
+m_szelesseg = oldal;
+m_magassag = oldal;
+}
+int getTerulet(){
+return m_szelesseg * m_magassag;
+}
+};
+int main ()
+{
+Teglalap* r = new Negyzet(10);
+Negyzet* s = new Negyzet(10);
+std::cout << s->getTerulet() << r->getTerulet() << std::endl;;
+}
+]]>
+</programlisting> 
+        <para>A C++ HIBAÜZENET:</para>
+        <screen>oszuszki@oszuszki-richard:~/bhax-textbook/_files_/_liskov_$ javac szgy.java
+szgy.java:31: error: cannot find symbol
+System.out.println(gy.getNev() + " " + s.getNev());
+                                        ^
+  symbol:   method getNev()
+  location: variable s of type szulo
+1 error
+</screen>
+        <para>
+        Szülőn keresztűl nem lehetséges olyan metódust hívni, amit a gyermekkel igen, a szülő nem definilt.
+        Ez mind a dinamikus kötésnek köszönhető, ami azt jelenti, hogy futási időben rendeli hozzá a metódust az objektumhoz.</para>
+    </section>
+<section>
+    <title>Ciklomatikus komplexitás</title>
+    <para>
+        A feladat egy tetszőleges program, esetemben a binfa, ciklomatikus komplexitásának kiszámítása.
+Erre van lehetőségünk képlet alapján, vagy egy programmal, én ezzel az online kalkulátorral dolgoztam:
+        <link xlink:href="http://www.lizard.ws/"/></para>
+    <para>Alkotója után gyakran McCabe-komplexitásnak is nevezik. A metrika egy adott szoftver forráskódjának alapján határozza meg annak komplexitását, 
+        egy konkrét számértékben kifejezve. A komplexitás számítása a gráfelméletre alapul. A forráskódban az elágazásokból felépülő gráf pontjai, és a 
+        köztük lévő élek alapján számítható.Cikomatikus komplexitás értéke: </para>
+    <para>M = E − N + 2P | E: A gráf éleinek száma | N: A gráfban lévő csúcsok száma | P: Az összefüggő komponensek száma</para>
+    
+    <para>Eredmény:</para>
+    <mediaobject>
+        <imageobject>
+    <imagedata fileref="./_files_/_liskov_/eredm.png" width="90%"/>
+        </imageobject>
+    </mediaobject>
+</section>
+    
+        
+    
+    
+    
+</chapter>   
