@@ -1,0 +1,287 @@
+ <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Mandelbrot!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Reverse engineering UML osztálydiagram</title>
+        <para>
+        A feladat egy UML osztálydiagram rajzolása az első védési C++ programhoz, a binfához.
+        Az osztálydiagramot generáld forrásokból, mint például Argo, UML, Umbrello, Eclipse UML.
+        Mutassunk rá a kompozíció és aggregáció
+        kapcsolatára a forráskódban és a diagramon.</para>
+        
+        <para>A feladat szemlélteti, hogy mikor kódból generálunk diagramot, 
+            a sorrend mindegy, mivel az osztály modeljének bemutatása szempontjából egyenértékű a kettő.</para>
+        <para>UML - Az UML (Unified Modeling Language) szabványos, általános célú modellező nyelv</para>
+        <para>BinFa forráskódja:</para>
+        <programlisting language="c++">
+<![CDATA[
+#include <iostream> // mert olvassuk a std::cin, írjuk a std::cout csatornákat
+    #include <cmath> // mert vonunk gyököt a szóráshoz: std::sqrt
+        #include <fstream> // fájlból olvasunk, írunk majd
+            #include <vector>
+                /* Az LZWBinFa osztályban absztraháljuk az LZW algoritmus bináris fa építését. Az osztály
+                definíciójába beágyazzuk a fa egy csomópontjának az absztrakt jellemzését, ez lesz a
+                beágyazott Csomopont osztály. Miért ágyazzuk be? Mert külön nem szánunk neki szerepet, ←-
+                ezzel
+                is jelezzük, hogy csak a fa részeként számiolunk vele.*/
+                class LZWBinFa {
+                public:
+                LZWBinFa () :fa ( &gyoker ) {
+                }
+                ~LZWBinFa () {
+                std::cout << "LZWBinFa dtor" << std::endl;
+                szabadit ( gyoker.egyesGyermek () );
+                szabadit ( gyoker.nullasGyermek () );
+                }
+                // 0.0.8, az állatorvosi tesztelésekhez a védéseken
+                LZWBinFa ( const LZWBinFa & regi ) {
+                std::cout << "LZWBinFa copy ctor" << std::endl;               
+                gyoker.ujEgyesGyermek ( masol ( regi.gyoker.egyesGyermek (), regi.fa ) );
+                gyoker.ujNullasGyermek ( masol ( regi.gyoker.nullasGyermek (), regi.fa ) );
+                if ( regi.fa == & ( regi.gyoker ) )
+                fa = &gyoker;
+                
+                }
+                // 0.0.9, az állatorvosi tesztelésekhez a védéseken
+                LZWBinFa ( LZWBinFa && regi ) {
+                std::cout << "LZWBinFa move ctor" << std::endl;
+                gyoker.ujEgyesGyermek ( regi.gyoker.egyesGyermek() );
+                gyoker.ujNullasGyermek ( regi.gyoker.nullasGyermek() );
+                regi.gyoker.ujEgyesGyermek ( nullptr );
+                regi.gyoker.ujNullasGyermek ( nullptr );
+                }
+                LZWBinFa& operator<< ( char b ) {
+                // Mit kell betenni éppen, ’0’-t?
+                if ( b == ’0’ ) {
+                if ( !fa->nullasGyermek () ) { // ha nincs, hát akkor csinálunk
+                // elkészítjük, azaz páldányosítunk a ’0’ bet ̋u akt. parammal
+                Csomopont *uj = new Csomopont ( ’0’ );
+                fa->ujNullasGyermek ( uj );
+                // és visszaállunk a gyökérre (mert ezt diktálja az alg.)
+                fa = &gyoker;
+                } else { // ha van, arra rálépünk
+                // azaz a "fa" pointer már majd a szóban forgó gyermekre mutat:
+                fa = fa->nullasGyermek ();
+                }
+                }
+                // Mit kell betenni éppen, vagy ’1’-et?
+                else {
+                if ( !fa->egyesGyermek () ) {
+                Csomopont *uj = new Csomopont ( ’1’ );
+                fa->ujEgyesGyermek ( uj );
+                fa = &gyoker;
+                } else {
+                fa = fa->egyesGyermek ();
+                }
+                }
+                return *this;
+                }
+                void kiir ( void ) {
+                melyseg = 0;
+                kiir ( &gyoker, std::cout );
+                }
+                int getMelyseg ( void );
+                double getAtlag ( void );
+                double getSzoras ( void );
+                friend std::ostream & operator<< ( std::ostream & os, LZWBinFa & bf ) {
+                bf.kiir ( os );
+                return os;              
+                }
+                void kiir ( std::ostream & os ) {
+                melyseg = 0;
+                kiir ( &gyoker, os );
+                }
+                private:
+                class Csomopont {
+                public:
+                Csomopont ( char b = ’/’ ) :betu ( b ), balNulla ( 0 ), jobbEgy ( 0 ) {
+                };
+                ~Csomopont () {
+                };
+                // Aktuális csomópont, mondd meg nékem, ki a bal oldali gyermeked
+                // (a C verzió logikájával m ̋uxik ez is: ha nincs, akkor a null megy vissza)
+                Csomopont *nullasGyermek () const {
+                return balNulla;
+                }
+                // Aktuális csomópon,t mondd meg nékem, ki a jobb oldali gyermeked?
+                Csomopont *egyesGyermek () const {
+                return jobbEgy;
+                }
+                // Aktuális csomópont, ímhol legyen a "gy" mutatta csomópont a bal oldali ←-
+                gyereked!
+                void ujNullasGyermek ( Csomopont * gy ) {
+                balNulla = gy;
+                }
+                // Aktuális csomópont, ímhol legyen a "gy" mutatta csomópont a jobb oldali ←-
+                gyereked!
+                void ujEgyesGyermek ( Csomopont * gy ) {
+                jobbEgy = gy;
+                }
+                // Aktuális csomópont: Te milyen bet ̋ut hordozol?
+                // (a const kulcsszóval jelezzük, hogy nem bántjuk a példányt)
+                char getBetu () const {
+                return betu;
+                }
+                private:
+                // friend class LZWBinFa; /* mert ebben a valtozatban az LZWBinFa metódusai nem ←-
+                közvetlenül
+                // a Csomopont tagjaival dolgoznak, hanem beállító/lekérdez ̋o üzenetekkel érik el ←-
+                azokat */
+                // Milyen bet ̋ut hordoz a csomópont
+                char betu;
+                // Melyik másik csomópont a bal oldali gyermeke? (a C változatból "örökölt" ←-
+                logika:
+                // ha hincs ilyen csermek, akkor balNulla == null) igaz
+                Csomopont *balNulla;
+                Csomopont *jobbEgy;
+                // nem másolható a csomópont (ökörszabály: ha van valamilye a szabad tárban,
+                // letiltjuk a másoló konstruktort, meg a másoló értékadást)
+                Csomopont ( const Csomopont & );
+                Csomopont & operator= ( const Csomopont & );
+                };
+                Csomopont *fa;
+                // technikai
+                int melyseg, atlagosszeg, atlagdb;
+                double szorasosszeg;                
+                /*
+                // szokásosan: nocopyable
+                LZWBinFa (const LZWBinFa &);
+                LZWBinFa & operator= (const LZWBinFa &);
+                */
+                /* Kiírja a csomópontot az os csatornára. A rekurzió kapcsán lásd a korábbi K&R-es ←-
+                utalást... */
+                void kiir ( Csomopont * elem, std::ostream & os ) {
+                // Nem létez ̋o csomóponttal nem foglalkozunk... azaz ez a rekurzió leállítása
+                if ( elem != NULL ) {
+                ++melyseg;
+                kiir ( elem->egyesGyermek (), os );
+                // ez a postorder bejáráshoz képest
+                // 1-el nagyobb mélység, ezért -1
+                for ( int i = 0; i < melyseg; ++i )
+                os << "---";
+                os << elem->getBetu () << "(" << melyseg - 1 << ")" << std::endl;
+                kiir ( elem->nullasGyermek (), os );
+                --melyseg;
+                }
+                }
+                void szabadit ( Csomopont * elem ) {
+                // Nem létez ̋o csomóponttal nem foglalkozunk... azaz ez a rekurzió leállítása
+                if ( elem != NULL ) {
+                szabadit ( elem->egyesGyermek () );
+                szabadit ( elem->nullasGyermek () );
+                // ha a csomópont mindkét gyermekét felszabadítottuk
+                // azután szabadítjuk magát a csomópontot:
+                delete elem;
+                }
+                }
+                // 0.0.8, az állatorvosi tesztelésekhez a védéseken
+                // a copy ctor hívja
+                Csomopont * masol ( Csomopont * elem, Csomopont * regifa ) {
+                Csomopont * ujelem = NULL;
+                if ( elem != NULL ) {
+                ujelem = new Csomopont ( elem->getBetu() );
+                ujelem->ujEgyesGyermek ( masol ( elem->egyesGyermek (), regifa ) );
+                ujelem->ujNullasGyermek ( masol ( elem->nullasGyermek (), regifa ) );
+                if ( regifa == elem )
+                fa = ujelem;
+                
+                }
+                return ujelem;
+                }
+                protected: // ha esetleg egyszer majd kiterjesztjük az osztályt, mert
+                // akarunk benne valami újdonságot csinálni, vagy meglév ̋o tevékenységet máshogy... stb.
+                // akkor ezek látszanak majd a gyerek osztályban is
+                /* A fában tagként benne van egy csomópont, ez er ̋osen ki van tüntetve,  ̋O a gyökér: */
+                Csomopont gyoker;
+                int maxMelyseg;
+                double atlag, szoras;
+                void rmelyseg ( Csomopont * elem );
+                void ratlag ( Csomopont * elem );
+                void rszoras ( Csomopont * elem );
+                }]]> </programlisting>
+      
+        <para>A BinFa forrását kellett legenerálni az UML diagramot, én az Umbrello segítségével csináltam:
+        <figure>
+            <title></title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="_files_/_mandelbrot_2_/binfaUMLdiagram.png" scale="70" />
+            </imageobject>
+        </mediaobject>
+        </figure> 
+        </para>
+        <para>Létrehozás folyamata: "Code" fül -> "Code Importing Wizard" -> "List of file extensions"-t bővítjük *.cpp-vel, 
+            hogy tudjuk használni a BinFa.cpp-t -> Binfa importálása(Start Import) -> "Finish" -> Three view-ba megjelennek az importált 
+            elemek, melyekket már csak össze kell szedni</para>
+        <itemizedlist>
+            <listitem>
+                <para>public: +</para>
+            </listitem>
+            <listitem>
+                <para>private: - </para>
+            </listitem>  
+            <listitem>
+                <para>protected: # </para>
+            </listitem>  
+        </itemizedlist>
+        
+    </section>
+     <section>
+         <title>Forward engineering UML osztálydiagram</title>
+         <para>Ez a feladat, a fenti, előző feladat teljes fordítottja, vagy inkább az ennek a fordítottja "reverse", ami mondjuk lényegtelen... (tyúk vagy a tojás)
+         Rajzolnunk kell egy UML diagramot, és abból generáljuk le a kódját.</para>
+         <para>UML - Az UML (Unified Modeling Language) szabványos, általános célú modellező nyelv</para>
+         <para>
+         Létre hozunk egy osztályt, majd abba addolunk bele minden egyes változót, függvényt, metódust...</para>
+         <figure>
+             <title></title>
+             <mediaobject>
+                 <imageobject>
+                     <imagedata fileref="_files_/_mandelbrot_2_/UML_Forward.png" scale="100" />
+                 </imageobject>
+             </mediaobject>
+         </figure> 
+         <para>Folyamat: "Code" fül -> "Code Generation Wizard" -> majd a "Code Generation Options"-nél beállítjuk a forrásnyerelvet (C++) stb -> "Next" -> 
+             Generate gomb segítségével legenerálja nekünk egy header fájl és egy .cpp fájl formájában, ha a C++-t választottuk.</para>
+         <itemizedlist>
+             <listitem>
+                 <para>public: +</para>
+             </listitem>
+             <listitem>
+                 <para>private: - </para>
+             </listitem>  
+             <listitem>
+                 <para>protected: # </para>
+             </listitem>  
+         </itemizedlist>
+         <para>A kód generálása közben a függvények törzse üres marad, mivel ötlete sincs a kódgenerátornak, hogy mit is kezdjen az adott résszel.</para>
+     </section>
+                                                  
+     <section>
+         <title>BPMN</title>
+         <para> A feladat az volt, hoy valamilyen tevékenységet rajzoljunk le BPMN-ben.</para>
+         <para>Business Process Model and Notation, elméleti háttér: <link xlink:href="https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_7.pdf">https://arato.inf.unideb.hu/batfai.norbert/UDPROG/deprecated/Prog2_7.pdf</link> (34-47 fólia)</para>
+ <para>Én egy nap lefolyását ábrázoltam, nagyon nagy ívekben, az egyszerűség kedvéért, MyGenyModel-ben, amely egy online modellező platform, BPMN, UML, stb. használatával.</para>
+         <para>Itt látható a "folyamat0ábra":</para>
+         <figure>
+             <title></title>
+             <mediaobject>
+                 <imageobject>
+                     <imagedata fileref="_files_/_mandelbrot_2_/BPMN.png" scale="100" />
+                 </imageobject>
+             </mediaobject>
+         </figure> 
+         <para>Felkelek, annak a függvényében, hogy van-e órám, vagy sem, meghozom az első döntést, ha nincs, akkor még van egy kevés időm szundítani, ha van, természetesen bemegyek
+          órára, kívétel nélkül, a tanóra vagy a taktikai szundi után, megvizsgálom, hogy mennyire produktív a napom, abban az esetben ha nincs semmi egyébb dolgom, 
+         diagramon kívüli időtltésbe kezdek, ami szabadidőnek felel meg, abban az essetben, ha még van valami elvégzendő dolgom, akkor elvégzem, és visszatérek a kérdéshez, 
+         és a válasznak megfelelő lépést hozom meg, majd a nap végén alszom. Természetesen ennél sokkal komplexebb példákkal is lehetne dobálózni, de most nem az volt a célom, hanem 
+         hogy minnél egyszerübben szemléltessük a BPMN alkalmazását.</para>
+ 
+ 
+     </section>
+   
+</chapter>                
