@@ -1,0 +1,433 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Chomsky!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+       <section>
+        <title>Encoding</title>
+        <para>A feladatot nem szeretném beszámíttatni, még gondolkodom rajta, de:</para>
+        <para>A feladat, hogy <link
+                xlink:href="https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/apbs02.html#id569620"
+                >https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/apbs02.html#id569620</link>
+            oldalról leszedett MandelbrotNagyító.java kódban meghagyjuk az ékezetes betűket, a
+            forrásban, és a file nevekben egyaránt, és oldjuk meg, hogy úgy is gond nélkül működjön. </para>
+        <figure>
+            <title>Egyszerűen futtatjuk</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./_files_/_chomsky_2_/chomsky_M_karantén/1.png" scale="50"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Láthatóan a fordításkor semmi rendellenesség nem törtémt, és a program is gond délkül
+            működik...</para>
+
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_chomsky_2_/chomsky_M_karantén/2.png" scale="20"/>
+            </imageobject>
+        </mediaobject>
+        <programlisting language="c++">
+<![CDATA[
+
+       
+        ]]>
+        </programlisting>
+    </section> 
+
+    <section>
+        <title>l334d1c4 <superscript>5</superscript></title>
+        <para> Írj olyan OO Java vagy C++ osztályt, amely leet cipherként működik, azaz megvalósítja
+            ezt a betű helyettesítést: https://simple.wikipedia.org/wiki/Leet (Ha ez első részben
+            nem tetted meg, akkor írasd ki és magyarázd meg a használt struktúratömb
+            memóriafoglalását!) </para>
+  <!--      <programlisting language="java">
+<![CDATA[
+import java.io.*;
+import java.util.*;
+class Lexer{
+	private String text;
+
+	public Lexer(String text)
+	{
+		this.text=text.toLowerCase();
+	}
+
+	public String[][] lexer=
+	{
+		{"α", "4", "@", "/-\\"},//a
+		{"ß", "8", "|3", "|}"},//b
+		{"©", "€", "¢", "{"},//c
+		{"d", "|)", "|]", "|}"},//d
+		{"Σ", "Œ", "3", "3"},//e
+		{"╒", "|=", "£", "|#"},//f
+		{"g", "6", "[", "[+"},//g
+		{"♓", "4", "|-|", "[-]"},//h
+		{"1", "1", "|", "!"},//i
+		{"⌡", "7", "_|", "_/"},//j
+		{"k", "|<", "1<", "|{"},//k
+		{"l", "1", "|", "|_"},//l
+		{"m", "44", "(V)", "|\\/|"},//m
+		{"π", "|\\|", "/\\/", "/V"},//n
+		{"σ", "0", "()", "[]"},//o
+		{"p", "/o", "|D", "|o"},//p
+		{"q", "9", "O_", "(,)"},//q
+		{"®", "Γ", "12", "|2"},//r
+		{"s", "5", "$", "$"},//s
+		{"†", "╤", "τ", "'|'"},//t
+		{"µ", "|_|", "(_)", "[_]"},//u
+		{"v", "\\/", "\\/", "\\/"},//v
+		{"w", "VV", "\\/\\/", "(/\\)"},//w
+		{"x", "%", ")(", ")("},//x
+		{"y", "¥", "", ""},//y
+		{"z", "2", "7_", ">_"},//z
+		{"Ω", "○", "º", "☺"},//0
+		{"I", "I", "L", "L"},//1
+		{"Z", "Z", "Z", "e"},//2
+		{"E", "E", "E", "E"},//3
+		{"h", "h", "A", "A"},//4
+		{"S", "S", "S", "S"},//5
+		{"b", "b", "G", "G"},//6
+		{"T", "T", "j", "j"},//7
+		{"X", "X", "X", "X"},//8
+		{"g", "g", "j", "j"}//9
+
+	};
+
+	public String Lextext(){
+		StringBuilder sb=new StringBuilder();
+		String newtext;
+		for(char c:text.toCharArray()){
+			Random rand = new Random();
+			int random = rand.nextInt(4);
+			switch(c){
+				case 'a':sb.append(lexer[0][random]);
+				break;
+				case 'b':sb.append(lexer[1][random]);
+				break;
+				case 'c':sb.append(lexer[2][random]);
+				break;
+				case 'd':sb.append(lexer[3][random]);
+				break;
+				case 'e':sb.append(lexer[4][random]);
+				break;
+				case 'f':sb.append(lexer[5][random]);
+				break;
+				case 'g':sb.append(lexer[6][random]);
+				break;
+				case 'h':sb.append(lexer[7][random]);
+				break;
+				case 'i':sb.append(lexer[8][random]);
+				break;
+				case 'j':sb.append(lexer[9][random]);
+				break;
+				case 'k':sb.append(lexer[10][random]);
+				break;
+				case 'l':sb.append(lexer[11][random]);
+				break;
+				case 'n':sb.append(lexer[12][random]);
+				break;
+				case 'm':sb.append(lexer[13][random]);
+				break;
+				case 'o':sb.append(lexer[14][random]);
+				break;
+				case 'p':sb.append(lexer[15][random]);
+				break;
+				case 'q':sb.append(lexer[16][random]);
+				break;
+				case 'r':sb.append(lexer[17][random]);
+				break;
+				case 's':sb.append(lexer[18][random]);
+				break;
+				case 't':sb.append(lexer[19][random]);
+				break;
+				case 'u':sb.append(lexer[20][random]);
+				break;
+				case 'v':sb.append(lexer[21][random]);
+				break;
+				case 'w':sb.append(lexer[22][random]);
+				break;
+				case 'x':sb.append(lexer[23][random]);
+				break;
+				case 'y':sb.append(lexer[24][random]);
+				break;
+				case 'z':sb.append(lexer[25][random]);
+				break;
+				case '0':sb.append(lexer[26][random]);
+				break;
+				case '1':sb.append(lexer[27][random]);
+				break;
+				case '2':sb.append(lexer[28][random]);
+				break;
+				case '3':sb.append(lexer[29][random]);
+				break;
+				case '4':sb.append(lexer[30][random]);
+				break;
+				case '5':sb.append(lexer[31][random]);
+				break;
+				case '6':sb.append(lexer[32][random]);
+				break;
+				case '7':sb.append(lexer[33][random]);
+				break;
+				case '8':sb.append(lexer[34][random]);
+				break;
+				case '9':sb.append(lexer[35][random]);
+				break;
+				default: sb.append(c);
+			}
+		}
+		newtext=sb.toString();
+		return newtext;
+		
+	}
+	
+	
+}
+
+
+class Leet{
+public static void main(String[] args) {
+    
+	while(true){
+	    Scanner in = new Scanner(System.in);
+	    String s = in.nextLine();
+	    if(s.length()<1){
+	    	break;
+	    }
+	    System.out.println();
+	    Lexer lex=new Lexer(s);
+	    System.out.println(lex.Lextext());
+	    System.out.println();
+	   	}
+}
+}
+
+
+       
+        ]]>
+        </programlisting>
+        <para> A leettel már találkoztunk korábban is, pontosan az "Tematikus feladatok" rész,
+            Chomsky-s (3) fejezetében, így bővebb magyarázatot nem igényel. </para>
+        <programlisting language="java">
+            <![CDATA[
+class Lexer{
+	private String text;
+
+	public Lexer(String text)
+	{
+		this.text=text.toLowerCase();
+	}
+            ]]>
+        </programlisting>
+        <para> Nézzük meg először a Lexer osztályt, és a konstruktorát. Bemeneti paraméter, az a
+            szöveg, amelyet <link xlink:href="https://en.wikipedia.org/wiki/Cipher">ciphernek</link>
+            be akarunk adni. A konstruktorban megszabadulunk a nagybetükől. </para>
+        <programlisting language="java">
+            <![CDATA[
+public String[][] lexer=
+	{
+		{"α", "4", "@", "/-\\"},//a
+		{"ß", "8", "|3", "|}"},//b
+		...
+	};
+            ]]>
+        </programlisting> -->
+        <para> A lexer egy publikus, kétdimenziós stringekből álló objektumn, amely az ábc-t fogja
+            tartalmazni </para>
+        <programlisting language="java">
+            <![CDATA[
+public String Lextext(){
+		StringBuilder sb=new StringBuilder();
+		String newtext;
+		for(char c:text.toCharArray()){
+			Random rand = new Random();
+			int random = rand.nextInt(4);
+			switch(c){
+				case 'a':sb.append(lexer[0][random]);
+				stb
+            ]]>
+        </programlisting>
+        <para> A Lextext public metódus téríti vissza az eredeti szöveget leet nyelven. Az eredeti
+            szöveget char tömbé alakítva, egy for ciklussal járjuk be, az összes karaktert,
+            egyenként. A java StringBuilder osztályt fogjuk használni, az append metódusával,
+            karakterenként építjük az új szöveget, megkeresi az adott karaktert és random választunk
+            egy helyettesíést a megadott karakterek közül. </para>
+        <programlisting language="java">
+            <![CDATA[
+                newtext=sb.toString();
+		return newtext;
+		
+            ]]>
+        </programlisting>
+        <para> Ezt a leet nyelvű szöveget, stringként adjuk vissza. </para>
+        <programlisting language="java">
+            <![CDATA[
+class Leet{
+public static void main(String[] args) {
+    
+    
+ 	while(true){
+ 	    Scanner in = new Scanner(System.in);
+ 	    String s = in.nextLine();
+ 	    if(s.length()<1){
+ 	    	break;
+ 	    }
+ 	    System.out.println();
+ 	    Lexer lex=new Lexer(s);
+ 	    System.out.println(lex.Lextext());
+ 	    System.out.println();
+	   	}
+}
+}
+            ]]>
+        </programlisting>
+        <para> Az input szöveget a java.util csomag Scanner osztályával, pontosabban annak a
+            nextLine metódusával fogjuk tudni soronként beadni a szöveget a lexernek. A Lexer
+            osztályt példányosításkor az input Stringgel inicializáljuk, majd meghívjuk a Lextext
+            metódust és a kimeneten megjelenítjük. </para>
+        <programlisting language="java">
+           <![CDATA[
+System.out.println("memory address of lexer: " + lex.lexer);
+System.out.println("memory address of lexer[0][0]: @" + Integer.toHexString(System.identityHashCode(lex.lexer[0][0])));
+           ]]>
+        </programlisting>
+        <para> A new operátorral való példányosításkor memória allokálódik az új Lexer objektumnak a
+            heap-en, így ennek minden tagváltozójának és metódusának is. Természetesen ekkor a lexer
+            String mátrix is kap memóriacímet, amit a fenti módon írathatunk ki. Illetve a mátrix
+            elemeinek címét is megkaphatjuk, amit a hash kódból generálva és hexadecimális stringgé
+            alakítva kaphatunk meg. </para>
+
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./_files_/_chomsky_2_/33.png" scale="75"/>
+            </imageobject>
+        </mediaobject>
+    </section>
+
+ <section>
+        <title>Perceptron osztály</title>
+        <para> Dolgozzuk be egy külön projektbe a projekt Perceptron osztályát! Lásd 
+            <link xlink:href="https://youtu.be/XpBnR31BRJY">https://youtu.be/XpBnR31BRJY</link>
+        </para>
+        <para> A <link xlink:href="https://en.wikipedia.org/wiki/Perceptron">perceptron</link> egy
+            olyan algoritmus, eltudja dönteni, hogy az input specifikus osztályhoz tartozik-e vagy
+            sem. </para>
+        <para> Perceptron felépítése három fő részből áll: 1. Retina - bemeneti jeleket fogadó
+            cellákat tartalmazza. 2. Asszociatív cellák - összegzik a hozzájuk érkező jeleket,
+            impulzusokat. 3. Perceptronok kimenetele - összegzi a hozzájuk érkező jeleket,
+            impulzusokat. </para>
+        <para> Feladatunk pontosan az lesz, hogy adujunk egy képet bemenetkénz, MandelbrotHalmazos
+            kép kézre esik, és ennek a képnek fogja venni az egyik színkódját ami majd a többrétegű
+            perceptronunk bemenete lesz. </para>
+        <para>Szükségünk lesz a többrétegűségre ezért kell az mlp (Multi Layer Perceptron) könyvtár,
+            és PNG képpel fogunk dolgozni ezért a png könyvtárra is szükség lesz: </para>
+        <programlisting language="java"><![CDATA[#include <iostream>
+#include "mlp.hpp"
+#include <png++/png.hpp>]]></programlisting>
+        <para> A main elején a képünk beolvasása történik, így tudunk rajta dolgozni, még hozzá a
+            "get_width" és a "get_height" segítségével. Valamint a new operátor segítségével
+            létrehozzuk a perceptronunkat. </para>
+        <programlisting language="java"><![CDATA[
+            int main(int argc, char ++argv){
+png::image <png::rgb_pixel> png_image(argv[1]);
+int size = png_image.get_width()*png_image.get_height();
+Perceptron *p = new Perceptron(3, size, 256, 1);
+]]></programlisting>
+        <para> Létrehounk egy double típusu változót, valamint a for ciklusok végig mennek a kép
+            szélesség és maggasági pontokon. A képpontokat image tárolni fogja a képállomány vörös
+            színkomponensét, ahogyan azt a kódban megadtuk, a value pedig azt a double típusú számot
+            amit majd kiíratunk a végén. </para>
+        <programlisting language="java"><![CDATA[
+            double* image = new double[size];
+for(int i = 0; i<png_inamge.get_width(); ++i)
+	for(int j = 0; i<png_image.get_height(); ++j)
+	image[i*png_image.get_width()+j] = png_image[i][j].red;
+double value = (*p) (image);
+cout << value << endl;
+]]></programlisting>
+        <para> Memóriában felszabadítjuk a szükséges helyet: </para>
+        <programlisting language="java"><![CDATA[
+            delete p;
+delete [] image;
+]]></programlisting>
+    </section>
+
+
+    <section>
+        <title>Full screen</title>
+        <para> Készítsünk egy teljes képernyős Java programot! Tipp:
+            https://www.tankonyvtar.hu/en/tartalom/tkt/javat-tanitok-javat/ch03.html#labirintus_jatek </para>
+        <para> A felhasznált labirintus program forrása:
+            https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/javat-tanitok-javat.zip
+            <link xlink:href="https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/javat-tanitok-javat.zip">https://www.tankonyvtar.hu/hu/tartalom/tkt/javat-tanitok-javat/javat-tanitok-javat.zip</link>
+            Használt displayek lekérdezése a getLocalGraphicsEnviroment() és a
+            getDefaulScreenDevice() metódusokkal. </para>
+        <programlisting language="java"><![CDATA[public class LabirintusJáték extends java.awt.Frame
+        implements Runnable {
+.
+.
+.
+java.awt.GraphicsDevice graphicsDevice;
+.
+.
+java.awt.GraphicsEnvironment graphicsEnvironment = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+.
+.
+graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
+.
+.
+teljesKépernyősMód(graphicsDevice);
+        ]]></programlisting>
+        <para> A teljesKépernyősMód-hoz tartozó kód:</para>
+        <programlisting language="java"><![CDATA[    
+        public void teljesKépernyősMód(java.awt.GraphicsDevice graphicsDevice) {
+        
+        int szélesség = 0;
+        int magasság = 0;
+        setUndecorated(true);
+        setIgnoreRepaint(true);
+        setResizable(false);
+        boolean fullScreenTamogatott = graphicsDevice.isFullScreenSupported();
+        if(fullScreenTamogatott) {
+            graphicsDevice.setFullScreenWindow(this);
+            java.awt.DisplayMode displayMode
+                    = graphicsDevice.getDisplayMode();
+            szélesség = displayMode.getWidth();
+            magasság = displayMode.getHeight();
+            int színMélység = displayMode.getBitDepth();
+            int frissítésiFrekvencia = displayMode.getRefreshRate();
+            System.out.println(szélesség
+                    + "x"  + magasság
+                    + ", " + színMélység
+                    + ", " + frissítésiFrekvencia);
+            java.awt.DisplayMode[] displayModes
+                    = graphicsDevice.getDisplayModes();
+            boolean dm1024x768 = false;
+            for(int i=0; i&lt;displayModes.length; ++i) {
+                if(displayModes[i].getWidth() == 1920
+                        &amp;&amp; displayModes[i].getHeight() == 1080
+                        &amp;&amp; displayModes[i].getBitDepth() == színMélység
+                        &amp;&amp; displayModes[i].getRefreshRate() 
+                        == frissítésiFrekvencia) {
+                    graphicsDevice.setDisplayMode(displayModes[i]);
+                    dm1024x768 = true;
+                    break;
+                }
+                
+            }
+            
+            if(!dm1024x768)
+                System.out.println("Nem megy az 1024x768.");
+        ]]></programlisting>
+        <para>
+            A Labirintus programnál, ez a kódcsipet felelős a fullscreenért. Az ablak kereteit egyszerűen
+            kivesszük, és kikapcsoljuk az átméretezhetőséget. Ezután lekérdezzük, hogy a fullscreen
+            mód támogatott-e, ha igen, átadjuk a képernyő tulajdonságait a setFullScreenWindow()
+            metódusnak. A támogatott felbontásokat egy tömbbe helyezzük, majd összevetve a jelenlegi
+            felbontással, kiderül hogy támogatott e (amennyiben nem, hibaüzenetet kapunk) 
+        </para>
+    </section>
+
+</chapter>
