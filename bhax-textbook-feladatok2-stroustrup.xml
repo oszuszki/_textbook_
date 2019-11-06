@@ -1,0 +1,206 @@
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Stroustrup!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>JDK osztályok</title>
+        <para>Írjunk olyan Boost C++ programot (indulj ki például a fénykardból) amely kilistázza a
+            JDK összes osztályát (miután kicsomagoltuk az src.zip állományt, arra ráengedve)!</para>
+
+        <para>A mainben, először is megadjuk a mappa nevét, azaz SrcZip, a path metódusnak(p), majd
+            azt vizsgáljuk, a p-t, hogy létezik e egyáltalán, és könyvtár-e, (negált formában
+            végezzük az ellenőrzést). Amennyiben minden rendben van, jön a read_acts metódus
+            meghívása a p-re, melyet a fénykard feladatból szereztünk. Egy kis magyarázat a
+            readacts-hez, a readacts metódus argumentumként, egy path változót vár, lényegében a
+            metódus annyit csinál, hogy megnézi az elérési útból származó file kiterjesztését, hogy
+            .java-e? A vizsgálatot a !ext.compare(extension(path))) itt azért van a negálás, hogy az
+            if-nek a true ága fut le ugyanis a compare egyezésnél 0-t adna vissza. Aztán mivel a
+            path mappa, rekurzívan bejárjuk, amenyiben a file .java kiterrjesztésű, beteszi a
+            vectorba, a végén, a vectort bejárjuk, és az eltárolt file neveket kiírjuk + kiírjuk,
+            mennyi JDK osztályt találtunk.</para>
+
+        <para>fordtása: g++ J.cpp -o J -std=c++11 -lboost_system -lboost_filesystem </para>
+        <para>Kód:</para>
+        <programlisting language="c++">
+<![CDATA[
+#include <iostream>
+#include <vector>
+#include <boost/filesystem.hpp>
+
+using namespace std;
+using namespace boost::filesystem;
+int i;
+vector<path> v;  
+
+void read_acts (path p)
+    {
+ 
+
+    if (is_regular_file(p)) {
+
+        string ext (".java");
+  
+        if (!ext.compare(extension(p))) 
+        {
+        i++;
+        v.push_back(p); 
+        }
+
+        } else if (is_directory (p))
+            for (directory_entry & entry:directory_iterator(p))
+            read_acts (entry.path());  
+    }
+  
+int main(int argc, char *argv[])
+    {
+    /* cout << argc << "\n";
+    cout << *argv << "\n"; */
+     path p("SrcZip");
+    if(!exists(p) || !is_directory(p))
+        {
+            cout<<p<<"Valami nem oké a könyvtárral, próbáld újra!\n";
+            return 1;
+        }
+    read_acts(p);  
+    for(auto&& x : v)
+    cout << x.filename()<< endl;
+    cout << i << " JDK osztályt találtunk.\n";
+    }
+]]>
+        </programlisting>
+        <para><link
+                xlink:href="https://www.boost.org/doc/libs/1_68_0/libs/filesystem/doc/tutorial.html"
+                >hasznos_link</link></para>
+
+    </section>
+
+    <section>
+        <title>Másoló-mozgató szemantika</title>
+        <para>Kódcsipeteken (copy és move ctor és assign) keresztül vesd össze a C++11 másoló és a
+            mozgató szemantikáját, a mozgató konstruktort alapozd a mozgató értékadásra!</para>
+
+
+
+        <para> Túlterheljük az egyenlőség operátort (|| típus operator op(paraméterlista); a
+            függvény automatikusan meghívódik, amikor az operátort egy meghatározott
+            szövegkörnyezetben használjuk). A mozgató értékadás: </para>
+        <programlisting language="c++">
+            <![CDATA[
+  LZWBinFa & operator= (LZWBinFa && regi){
+      
+      std::swap(gyoker, regi.gyoker);
+      
+      std::swap(fa, regi.fa);
+      
+}
+            ]]>
+        </programlisting>
+        <para>Ez a binfának az a változata, ahol mutatóként tartalmazza a gyökeret. Ebben a
+            függvényben a két gyökérmutatót a swap függvényt, majd az aktuális objektumot térítjük
+            vissza a this segítségével hivatkozva rá. Mozgató konstruktort, az új objektum megkapja
+            a régi binfa gyökérpointerét, majd a régi objektum pointerét nullpointerré alakítjuk,
+            ezért nevezhetjük mozgatásnak, mert az új binfa megkapja a régi objektum elemeit a
+            jobbértékreferencia segítségével. (jobb/bal érték tisztázása - minden olyan kifejezés,
+            amelynek érték adható, balérték, minden olyan kifejezést, amit értékül adhatunk,
+            jobbérték)</para>
+        <programlisting language="c++">
+            <![CDATA[
+ LZWBinFa ( LZWBinFa && regi ){
+  
+      gyoker = regi.gyoker;
+      
+      regi.gyoker = nullptr;
+      
+  }
+            ]]>
+        </programlisting>
+        <para>Annak érdekében, hogy a mozgató konstruktor a mozgató értékadást használja,
+            alkalmaznunk kell a move függvényt:</para>
+        <programlisting language="c++">
+            <![CDATA[
+ LZWBinFa ( LZWBinFa && regi ){
+  
+      gyoker = nullptr;
+      
+      *this = std::move(regi);
+      
+  }
+            ]]>
+        </programlisting>
+        <para>Az eredeti mozgató konstruktorban kinulláztuk a régi binfa gyökérmutatóját. Itt is ezt
+            kell elérnúnk, az aktuális fa gyökerének kinullázása, move segítségével, ezáltal a
+            mozgató értékadás érvényesül. Ugyanis ekkor a swappel a mozgató értékadás megcseréli a
+            két fa gyökérmutatóját, így a az aktuális fa gyökere megkapja a régi fáét, a régi pedig
+            a nullpointerre lesz állítva. Így ez a változata a mozgató konstruktornak ugyanazt az
+            eredményt éri el, mint az eredeti változat.</para>
+        <para> Mozgató szemantika, move függvénnyel, az argumentumként megadott értékből
+            jobbértékreferenciát készít, ami megfelelő paraméter a mozgató konstruktornak.</para>
+
+        <programlisting language="c++">
+            <![CDATA[
+LZWBinFa binfa1;
+binfa1 = std::move(binFa);
+            ]]>
+     </programlisting>
+
+    </section>
+
+    <section>
+        <title>String osztály</title>
+        <para> A feladat saját string osztály létrehozzása volt.</para>
+        <para>Először is, létrehozunk egy char* buffert, ami majd stringre mutat (eleinte
+            nullpointer lesz), aztán egy hossz változót, ami a string hosszáért felelős, ezek az
+            osztály privát láthatóságán belül lesznek. Most nekifogunk a publikus résznek,
+            létrehozunk olyan konstruktorokat, amelyek paraméterként, a konstans char* argumentumot
+            kapja meg. Beállítjuk, a char* buffer és a hossz értéket. Amenyiben a buffer nem üres
+            belemásoljuk a szöveget. A char* a szöveg első karakterére fog mutatni míg a hossz
+            megadja az utolsó karakter helyét. A másol, </para>
+        <programlisting language="c++">
+            <![CDATA[
+            class String{
+private:
+	char* buffer=nullptr;
+	int hossz=0;
+public:
+	String(const char* szoveg){
+		hossz=strlen(szoveg);
+		buffer=new char[hossz+1];
+		if(buffer!=0)
+		{	
+			copy(szoveg,szoveg+hossz, buffer);
+		}
+		else
+		{
+			cout<<"Hiba, próbáld újra!"<<endl;
+		
+		}
+	}
+            ]]>
+     </programlisting>
+        <para> Alkalmazzuk, a fentebb látható másoló és mozgató konstruktort és értékadást.
+            Konstruktornál, move, értékadásnál, swap. A visszatérési értékek is a szokásos *this-ek
+            azaz önhivatkozások amelyek erre az objektumra vonatkoznak, aztán jönnek az operátor
+            túltöltések, Ahoz hogy kitudjuk írni az operátor működését, a friends függvényt
+            használjuk. </para>
+        <programlisting language="c++">
+            <![CDATA[
+        friend ostream& operator<< (ostream& os,const String& szoveg)
+        {
+        os << szoveg.buffer;
+        return os;
+        }            ]]>
+        </programlisting>
+        <para>Futtatjuk:</para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="_files_/_stroustrup_/str.png" scale="60"  />
+            </imageobject>
+        </mediaobject>
+    </section>
+
+
+</chapter>

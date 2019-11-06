@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, Gödel!</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>Gengszterek</title>
+        <para>A feladat az, hogy rendezzük a gengsztereket, lambdával, a Robotautó
+            Világbajnokságban, de mi is a lambda? A lambda kifejezések, olyan névtelen metódusok,
+            melyeket ott írunk meg, ahol ténylegesen használunk. Ebben a példában, a sort()
+            segítségével fogunk rendezni, ami majd végig megy a gengsztereken, és össze méri öket a
+            rendőreikkel, addig rendezi, amíg ki nem alakítja a sorrendet, a legközelebb eső
+            gengszter kerüljön a lista elejére, a legtávolabbi, pedig a végére.</para>
+
+        <programlisting language="java">
+<![CDATA[
+        std::sort ( gangsters.begin(), gangsters.end(), [this, cop] ( Gangster x, Gangster y )
+        {
+        return dst ( cop, x.to ) < dst ( cop, y.to );
+        } );
+]]>
+        </programlisting>
+
+        <para>A sort() függvénynek van több változata is, kettő és három paraméteress. Az első
+            kettőben azt a tartományt adjuk meg, amit rendezni szeretnénk (gangsters.begin(),
+            gangsters.end() -> első és utolsó elem indexe). A harmadik elem, opcionális, jelen
+            esetben a rendezés alapjául szolgáló függvény, ha ez nincs, a beépített függvény dönti
+            el mi alapján rendez.(Az a ktuális x és y elemet fogja összemérni a randőrével)</para>
+    </section>
+    <section>
+        <title>C++11 Custom Allocator</title>
+        <para>A c++-ban van beépített allocator, ami az esetek többségében, teljes mértékben
+            megfelelő, de amenyiben jobban bele szeretnénk avatkozni a memória kezelésében, létre
+            kell hozni egy saját allocatort, ( Az allokáto-rok lehetővé teszik, hogy egy konkrét
+            környezet feltételeihez igazítsuk a memóriafoglalást)</para>
+        <para>Létrehozunk egy ConsumAllocator templete osztályt, azaz bármely típussal
+            használható:</para>
+
+        <programlisting language="c++">
+<![CDATA[
+        template <typename T>
+        struct CustomAlloc {
+]]>
+        </programlisting>
+        <para>Using-gal megadjuk mit milyen néven fogunk használni:</para>
+        <programlisting language="c++">
+<![CDATA[
+	using size_type = size_t;
+	using value_type = T;
+	using pointer = T*;
+	using const_pointer = const T*;
+	using reference = T&;
+	using const_reference = const T&;
+	using difference_type = ptrdiff_t;
+
+]]>
+        </programlisting>
+        <para>Az <code>allocate</code> egy <code>size_type</code> típusu pointert ad vissza. Ez
+            foglalja le a szükséges memória területet:</para>
+        <programlisting language="c++">
+<![CDATA[
+pointer allocate ( size_type n ) {
+		int s;
+		char* p=abi::__cxa_demangle ( typeid ( T ).name(),0,0, &s);
+		cout << "Allocating "
+				  << n << " objects of "
+				  << n+sizeof ( T )
+				  << " bytes. "
+				  << typeid ( T ).name() << "=" << p
+				  << endl;
+		free ( p );
+		return reinterpret_cast<T*> (
+			new char[n*sizeof ( T )] );
+		}
+		void deallocate ( pointer p, size_type n ) {
+			delete[] reinterpret_cast<char *> ( p );
+			cout << "Deallocating "
+					  << n << " objects of "
+					  << n+sizeof ( T )
+					  << " bytes. "
+					  << typeid ( T ).name() << "=" << p
+					  << endl;
+	}
+	};
+]]>
+        </programlisting>
+        <para><code>a __cxa_demangle</code> - változónevek visszafejtéséhez szűkséges. Az elso
+            paramétere a visszafejtendő név, második az output buffer, aztán a hossz, majd a
+            státusz. Ezt eltároljuk az integer típusú 's' változónkba. Ezután kiírjuk, hogy hány
+            objektumnak foglalunk helyet, és hány bájt. A 'p'-ben tároljuk el a typeid(T).name()
+            által visszafejtett típus típusazonosítóját,utánna a 'p'-t felszabadítjuk, és
+            visszatérünk a T típusu mutatóval, a lefoglalt helyre. </para>
+        <para>main():</para>
+
+        <programlisting language="c++">
+<![CDATA[
+int main(){
+vector<int, CustomAlloc<int>> v;
+v.push_back(1);
+v.push_back(2);
+v.push_back(3);
+v.push_back(4);
+v.push_back(5);
+v.push_back(6);
+v.push_back(7);
+v.push_back(8);
+v.push_back(9);
+v.push_back(10);
+v.push_back(11);
+v.push_back(12);
+v.push_back(13);
+v.push_back(14);
+v.push_back(15);
+for(int x : v){
+	cout << x << endl;
+	}
+return 0;
+}
+]]>
+        </programlisting>
+
+        <para>Létrehozunk egy integer elemeket tartalmazó vektort és megadjuk, hogy
+            memóriafoglalásnál a mi allokátorunkat szeretnénk használni. A
+                <code>v.push_back()</code> függvénnyel hozzáfűzünk 15 db integert és végigmegyünk a
+            vectoron egy for ciklussal.</para>
+
+        <para>Működése:</para>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="_files_/_gödel_/c_alloc.png" scale="40"/>
+            </imageobject>
+        </mediaobject>
+    </section>
+
+    <section>
+        <title>STL map érték szerinti rendezése</title>
+        <para>Az STL (Standart Template Library) egy olyan könyvtár, mely tárolókat, és
+            algoritmusokat tartalmaz (vector, list, stack, map).</para>
+        <para>A map gyárilag a benne tárolt adatokat növekvő sorrendbe rendezi, és a feladatunk az
+            lenne, hogy ez ne a kulcs alapján történjen, hanem az érték mező szerint.</para>
+        <para>Van egy sort_map függvényünk, a visszatérési értéke egy string, int párokat tartalmazó
+            vektor, erre szolgál a <code>pair</code>, paraméterként a függvény megkapja a
+                <code>map</code> referenciát. Csinálunk egy üres vektort, ez fog string párokat
+            tartalmazni, aztán egy <code>for</code> ciklussal bejárjuk a <code>map</code>-ot, hogy
+            van-e második értékpár, amennyiben van, akkor létrehozunk egy <code>pair</code>
+            adatstruktúrát és a létrehozott párokat tároljuk az ordered vektorba. Meghívjuk a
+                <code>sort</code>-ot az "ordered" vektorra, és rendezzük azt, lambda kifejezés
+            segítségével megadjuk miképpen szeretnénk rendezni az elemeket.(Paraméterei ketto auto
+            típusú jobbérték, visszatérési értéke bool, aminek értékét a p1.second és p2.second 
+            összehasonlítása adj meg)
+        [=] -> a lambda kifejezés másolás útján, nem pedig referenciaként fogja átvenni a változókat.</para>
+        <para>Kód:</para>
+        <programlisting language="c++">
+<![CDATA[
+std::vector<std::pair<std::string, int>> sort_map ( std::map <std::string, int> &rank )
+{
+        std::vector<std::pair<std::string, int>> ordered;
+
+        for ( auto & i : rank ) {
+                if ( i.second ) {
+                        std::pair<std::string, int> p {i.first, i.second};
+                        ordered.push_back ( p );
+                }
+        }
+
+        std::sort (
+                std::begin ( ordered ), std::end ( ordered ),
+        [ = ] ( auto && p1, auto && p2 ) {
+                return p1.second > p2.second;
+        }
+        );
+
+        return ordered;
+}
+]]>
+        </programlisting>
+
+    </section>
+
+
+
+
+</chapter>
