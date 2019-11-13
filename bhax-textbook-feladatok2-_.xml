@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0" xml:lang="hu">
+    <info>
+        <title>Helló, !</title>
+        <keywordset>
+            <keyword/>
+        </keywordset>
+    </info>
+    <section>
+        <title>FUTURE tevékenység editor</title>
+        <para>A feladat az volt, hogy javítsunk valamit a ActivityEditor.java JavaFX programon,
+            keressnk benne bugokat!</para>
+        <para>Az első bug amivel találkoztam, hogy abban az esetben, ha új altevékenységet vagy új
+            altevékenység tulajdonságot hozunk létre, maga az altevékenység/altevékenység
+            tulajdonság létre jön, de ha már még egyet csinálunk, ez nem lehetséges mivel a program
+            automatikusan "Új altevékenység tulajdonságok" vagy "Új altevékenység" nevet adja neki
+            folyton és két ugyan olyan nevű mappa nem lehet egy könyvtárban, így ezt korigáltam,
+            azzal, hogy amikor új altevékenységet vagy új altevékenység tulajdonságot hozunk létre,
+            van arra lehetőségünk, hogy nevet adjunk neki.</para>
+
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="_files_/_ _/bug_1.png" scale="60"/>
+            </imageobject>
+        </mediaobject>
+        <para>Ez picit fapados megoldás, de a célnak megfelel, ahoz hogy használni tudjuk a Scanner
+            osztályt importálnunk kell a java.util csomagot (<code>import java.util.Scanner</code>),
+            ez az osztály segít a felhasználótól adatot bekérni, és azzal dolgozni.</para>
+
+        <programlisting language="java">
+            <![CDATA[        
+        subaMenuItem.setOnAction((javafx.event.ActionEvent evt) -> {
+        
+        java.io.File file = getTreeItem().getValue();
+        
+        System.out.println("Adja meg az új altevékenység nevét: ");
+        Scanner file_nevi = new Scanner(System.in);
+        String file_nev = file_nevi.next(); 
+        
+        java.io.File f = new java.io.File(file.getPath() + System.getProperty("file.separator") + file_nev);            ]]>
+     </programlisting>
+        <para>Ugyan ezzel a módszerrel módosítjuk a kódot a altevékenység tulajdonságok résznél
+            is.</para>
+    </section>
+
+    <section>
+        <title>OOCWC Boost ASIO hálózatkezelése</title>
+        <para>Mutassunk rá a scanf szerepére és használatára! https://github.com/nbatfai/robocar-
+            emulator/blob/master/justine/rcemu/src/carlexer.ll</para>
+        <para>Eza feladat egy inputstream adatainak feldolgozását mutatja be, ezáltal
+            megismerkedhetünk a streamekkel.</para>
+        <programlisting language="java">
+            <![CDATA[
+              while ( std::sscanf ( data+nn, "<OK %d %u %u %u>%n", &idd, &f, &t, &s, &n ) == 4 )
+                {
+                    nn += n;
+                    gangsters.push_back ( Gangster {idd, f, t, s} );
+                } ]]>
+     </programlisting>
+        <para>Az sscanf formázott stringből olvas be, itt azért van szükség erre a whilera mert nem
+            tudjuk pontosan hány gengster adatot tudunk beolvasni, ezért ellenőrini kell az adatok
+            érvényességét. A whileban a sscanf visszatérési értékét (beolvasott paraméterek száma),
+            és a négyet hasonlítjuk össze, azaz ha ez az egyenlőség igaz, minden gangster adatát
+            sikresen beolvastuk. Létrehozunk egy üj gangster objektumot, amit bele rakunk a gangster
+            vectorba, az nn változó az eddig beolvasott adatok számát tárolja, erre a data karakter
+            tömb miatt van szükség, hogy ne olvassuk be belőlle kétszer ugyan azt az adatot.</para>
+    </section>
+
+    <section>
+        <title>BrainB</title>
+        <para>Mutassuk be a Qt slot-signal mechanizmust ebben a projektben:
+            https://github.com/nbatfai/esport- talent-search</para>
+        <para>A BrainBvel már foglalkoztunk, ez egy olyan program ami azt szimulálja mikor egy játék
+            közben nagy a katyvasz, és szinte eltűnik a karakterünk, a szimuláció 10 percnyi időn
+            belül teszteli mennyire tudjuk követni a Samu Entropy négyzetet, a futás végén kapunk
+            egy statisztikát.</para>
+        <para>Haználata:</para>
+        <programlisting language="java">
+            <![CDATA[
+            sudo apt-get install libqt4-dev
+            sudo apt-get install opencv-data
+            sudo apt-get install libopencv-dev
+            
+            qmake BrainB.pro
+            make
+            ./BrainB
+                 ]]>
+     </programlisting>
+
+        <para>Most tekintsük meg a slot-signal mechanizmust, Qt-ban a slot-signal mechanizmust,
+            objektumok közöti kommunikációra lehet használni. Egy slot akkor hívódik meg amikor egy
+            signal bekövetkezik, a signal pedig akkor következik be, ha egy bizonyos esemény
+            bekövetkezik, ezzel elkerülődik a cross reference, mivel nem kell egy osztályon belül
+            egy másik osztályt meghívni. A slotok a signalokhoz, connect függvénnyel kapcsolódnak
+            (szignaturáiknak meg kell egyezniük), itt két connectet figyelhetünk meg.</para>
+
+        <programlisting language="java">
+            <![CDATA[
+     connect ( brainBThread, SIGNAL ( heroesChanged ( QImage, int, int ) ),
+    this, SLOT ( updateHeroes ( QImage, int, int ) ) );
+    connect ( brainBThread, SIGNAL ( endAndStats ( int ) ),
+    this, SLOT ( endAndStats ( int ) ) );
+                 ]]>
+     </programlisting>
+
+        <para>Azt jelenti, hogya brainBthread-ben a heroesChanged signal bekövetkezik akkor lefut a
+            BrainBWin update-Heroes függvénye, endAndStats esetén ugyanígy, ami a futási idő
+            lejártakor következik be, aminek köszönhetően, kiiródik a debug üzenet, hogy vége a
+            játéknak:</para>
+
+        <programlisting language="java">
+            <![CDATA[
+        void BrainBThread::run()
+        {
+            while ( time < endTime ) {
+            QThread::msleep ( delay );
+            if ( !paused ) {
+                ++time;
+                devel();
+            }
+            draw();
+        }
+        emit endAndStats ( endTime );
+        }
+                 ]]>
+     </programlisting>
+
+        <programlisting language="java">
+            <![CDATA[
+        void BrainBWin::endAndStats ( const int &t )
+        {
+            qDebug() << "\n\n\n";
+            qDebug() << "Thank you for using " + appName;
+            qDebug() << "The result can be found in the directory " + statDir;
+            qDebug() << "\n\n\n";
+            
+            save ( t );
+            close();
+        }
+                 ]]>
+     </programlisting>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="_files_/_ _/BB.png" scale="40"/>
+            </imageobject>
+        </mediaobject>
+    </section>
+</chapter>
